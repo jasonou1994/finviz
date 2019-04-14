@@ -14,7 +14,3 @@ export const getPublicToken = publicToken => {
       return res;
     });
 };
-
-export const getTransactions = accessToken => {
-  console.log("In getTransactions method with accessToken:", accessToken);
-};

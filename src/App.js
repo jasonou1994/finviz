@@ -1,8 +1,11 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { fetchTransactions } from "./actions/index";
+import PropTypes from "prop-types";
 import PlaidLink from "react-plaid-link";
-import { getPublicToken } from "./services";
+import { getPublicToken, getTransactions } from "./services";
 
-class App extends Component {
+class _App extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -24,8 +27,12 @@ class App extends Component {
 
   render() {
     const { PLAID_PUBLIC_KEY, ACCESS_TOKEN } = this.state;
+    const { fetchTransactions } = this.props;
+
     return ACCESS_TOKEN ? (
-      <button>GET TRANSACTIONS</button>
+      <button onClick={() => fetchTransactions(ACCESS_TOKEN)}>
+        GET TRANSACTIONS
+      </button>
     ) : (
       <PlaidLink
         clientName="testApp"
@@ -40,4 +47,18 @@ class App extends Component {
   }
 }
 
-export default App;
+_App.propTypes = {
+  transactions: PropTypes.array,
+  accounts: PropTypes.array,
+  fetchTransactions: PropTypes.func
+};
+
+export default connect(
+  state => ({
+    transactions: state.transactions.transactions,
+    accounts: state.transactions.accounts
+  }),
+  dispatch => ({
+    fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken))
+  })
+)(_App);

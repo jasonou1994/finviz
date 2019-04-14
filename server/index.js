@@ -50,19 +50,24 @@ app.post("/get_access_token", (req, res) => {
 app.post("/transactions", (req, res) => {
   console.log("In /transactions POST endpoint.");
   const { accessToken } = req.body;
-  console.log(accessToken);
 
   client.getTransactions(
     accessToken,
     "2018-01-01",
     "2019-04-14",
+    {
+      count: 500
+    },
     (err, result) => {
       if (err) {
         return res.json({ err });
       }
 
-      const { transactions } = result;
-      console.log(transactions);
+      const { transactions, accounts } = result;
+      res.json({
+        transactions,
+        accounts
+      });
     }
   );
 });
