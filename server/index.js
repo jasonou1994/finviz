@@ -49,12 +49,12 @@ app.post("/get_access_token", (req, res) => {
 
 app.post("/transactions", (req, res) => {
   console.log("In /transactions POST endpoint.");
-  const { accessToken } = req.body;
+  const { accessToken, start, end } = req.body;
 
   client.getTransactions(
     accessToken,
-    "2018-01-01",
-    "2019-04-14",
+    start,
+    end,
     {
       count: 500
     },

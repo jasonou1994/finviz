@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTransactions } from "./actions/index";
+import { fetchTransactions } from "../actions/index";
 import PropTypes from "prop-types";
 import PlaidLink from "react-plaid-link";
-import { getPublicToken, getTransactions } from "./services";
+import { getPublicToken, getTransactions } from "../services";
 
 class _App extends Component {
   constructor(props) {

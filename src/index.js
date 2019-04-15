@@ -9,7 +9,7 @@ import {
 import rootReducer from "./reducers/index";
 import saga from "./sagas/sagas";
 import createSagaMiddleware from "redux-saga";
-import App from "./App";
+import App from "./containers/App";
 
 const sagaMiddleware = createSagaMiddleware();
 

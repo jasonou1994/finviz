@@ -1,31 +1,51 @@
-import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
+import { call, all, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   setTransactions,
   setAccounts,
   resetTransactions
 } from "../actions/index";
 import { FETCH_TRANSACTIONS } from "../constants";
-import { getStartEndTimePairsForPastDays } from "../utils";
+import { getStartEndTimePairsForPastMonths, combineMonthData } from "../utils";
 
 function* fetchTransactions(action) {
   const accessToken = action.payload;
-  const dateArray = getStartEndTimePairsForPastDays(10);
-  console.log(dateArray);
-  // try {
-  //   yield put(resetTransactions());
-  //   const response = yield call(fetch, "http://localhost:8000/transactions", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json"
-  //     },
-  //     body: JSON.stringify({
-  //       accessToken
-  //     })
-  //   });
-  //   const { transactions, accounts } = yield response.json();
-  //   yield put(setTransactions(transactions));
-  //   yield put(setAccounts(accounts));
-  // } catch (e) {}
+  const dateArray = getStartEndTimePairsForPastMonths();
+
+  try {
+    yield put(resetTransactions());
+
+    const responses = yield all(
+      dateArray.map(date => {
+        const { yesterday: start, today: end } = date;
+
+        return call(fetch, "http://localhost:8000/transactions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            accessToken,
+            start,
+            end
+          })
+        });
+      })
+    );
+    const responseJsons = yield all(
+      responses.map(res => {
+        const bound = res.json.bind(res);
+        return call(bound, res);
+      })
+    );
+
+    console.log(responseJsons);
+    const { transactions, accounts } = combineMonthData(responseJsons);
+
+    yield put(setTransactions(transactions));
+    yield put(setAccounts(accounts));
+  } catch (e) {
+    console.log("Error in fetchTransactions:", e);
+  }
 }
 
 function* saga() {

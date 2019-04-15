@@ -26,7 +26,9 @@ export default function transactions(state = initialState, action) {
       break;
     }
     case RESET_TRANSACTIONS: {
-      newState = state.setIn([TRANSACTIONS], List());
+      console.log("rest");
+      newState = state.set(TRANSACTIONS, initialState.get(TRANSACTIONS));
+      console.log(newState);
     }
     default: {
       newState = state;
