@@ -3,7 +3,15 @@ import { connect } from "react-redux";
 import { fetchTransactions } from "../actions/index";
 import PropTypes from "prop-types";
 import PlaidLink from "react-plaid-link";
-import { getPublicToken, getTransactions } from "../services";
+import { getPublicToken } from "../services";
+import { list } from "react-immutable-proptypes";
+import {
+  accountsSelector,
+  dailyTransactionsSelector,
+  transactionsByAccountsSelector,
+  transactionsByDateInputOutputSelector
+} from "../reducers";
+import { Graph } from "../components/Graph";
 
 class _App extends Component {
   constructor(props) {
@@ -27,12 +35,26 @@ class _App extends Component {
 
   render() {
     const { PLAID_PUBLIC_KEY, ACCESS_TOKEN } = this.state;
-    const { fetchTransactions } = this.props;
+    const {
+      fetchTransactions,
+      dailyTransactions,
+      transactionsByAccounts,
+      transactionsByDateInputOutput,
+      accounts
+    } = this.props;
 
     return ACCESS_TOKEN ? (
-      <button onClick={() => fetchTransactions(ACCESS_TOKEN)}>
-        GET TRANSACTIONS
-      </button>
+      <div>
+        <button onClick={() => fetchTransactions(ACCESS_TOKEN)}>
+          GET TRANSACTIONS
+        </button>
+        <Graph
+          dailyTransactions={dailyTransactions}
+          transactionsByAccounts={transactionsByAccounts}
+          transactionsByDateInputOutput={transactionsByDateInputOutput}
+          accounts={accounts}
+        />
+      </div>
     ) : (
       <PlaidLink
         clientName="testApp"
@@ -48,15 +70,17 @@ class _App extends Component {
 }
 
 _App.propTypes = {
-  transactions: PropTypes.array,
-  accounts: PropTypes.array,
+  dailyTransactions: PropTypes.object,
+  accounts: list,
   fetchTransactions: PropTypes.func
 };
 
 export default connect(
   state => ({
-    transactions: state.transactions.transactions,
-    accounts: state.transactions.accounts
+    dailyTransactions: dailyTransactionsSelector(state),
+    transactionsByDateInputOutput: transactionsByDateInputOutputSelector(state),
+    transactionsByAccounts: transactionsByAccountsSelector(state),
+    accounts: accountsSelector(state)
   }),
   dispatch => ({
     fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken))
