@@ -25,7 +25,9 @@ class _App extends Component {
   }
 
   handleOnLinkSuccess(token) {
-    const { ACCESS_TOKEN, ITEM_ID } = getPublicToken(token);
+    const { access_token: ACCESS_TOKEN, item_id: ITEM_ID } = getPublicToken(
+      token
+    );
 
     this.setState({
       ACCESS_TOKEN,

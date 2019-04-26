@@ -38,7 +38,6 @@ function* fetchTransactions(action) {
       })
     );
 
-    console.log(responseJsons);
     const { transactions, accounts } = combineMonthData(responseJsons);
 
     yield put(setTransactions(transactions));

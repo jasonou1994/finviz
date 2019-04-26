@@ -71,10 +71,8 @@ export const transactionsByDateInputOutputSelector = createSelector(
   dailyTransactionsSelector,
   accountsSelector,
   (transactions, accounts) => {
-    const newObj = {};
-
-    Object.keys(transactions).forEach(date => {
-      const accountsArranged = transactions[date].reduce(
+    return Object.keys(transactions).reduce((result, date) => {
+      result[date] = transactions[date].reduce(
         (acc, cur) => {
           const accountType = getTypeOfAccount({
             id: cur.account_id,
@@ -106,28 +104,23 @@ export const transactionsByDateInputOutputSelector = createSelector(
           transactions: []
         }
       );
-
-      newObj[date] = accountsArranged;
-    });
-    return newObj;
+      return result;
+    }, {});
   }
 );
 
 export const transactionsByAccountsSelector = createSelector(
   dailyTransactionsSelector,
   transactions => {
-    const newObj = {};
-
-    Object.keys(transactions).forEach(date => {
-      const accountsArranged = transactions[date].reduce((acc, cur) => {
+    return Object.keys(transactions).reduce((result, date) => {
+      result[date] = transactions[date].reduce((acc, cur) => {
         acc[cur.account_id]
           ? acc[cur.account_id].push(cur)
           : (acc[cur.account_id] = [cur]);
         return acc;
       }, {});
 
-      newObj[date] = accountsArranged;
-    });
-    return newObj;
+      return result;
+    }, {});
   }
 );
