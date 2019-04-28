@@ -1,72 +1,71 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTransactions } from "../actions/index";
+import { fetchTransactions, fetchAccessToken } from "../actions/index";
 import PropTypes from "prop-types";
 import PlaidLink from "react-plaid-link";
-import { getPublicToken } from "../services";
 import { list } from "react-immutable-proptypes";
 import {
   accountsSelector,
   dailyTransactionsSelector,
   transactionsByAccountsSelector,
-  transactionsByDateInputOutputSelector
+  transactionsByDateInputOutputSelector,
+  accessTokensSelector
 } from "../reducers";
 import { Graph } from "../components/Graph";
+import { transactionsCombinerByDayCount } from "../utils";
 
 class _App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       PLAID_PUBLIC_KEY: "134893e5d974bced3a52c91e8e6b5a",
-      PLAID_ENV: "development",
-      ACCESS_TOKEN: "access-development-24a603b2-2718-4a6e-bf97-51a1b81f3303",
-      ITEM_ID: "J9Bb060X4wTKRj3mbmYJCZkNBP8kgeHbdO3AK"
+      PLAID_ENV: "development"
     };
   }
 
-  handleOnLinkSuccess(token) {
-    const { access_token: ACCESS_TOKEN, item_id: ITEM_ID } = getPublicToken(
-      token
-    );
-
-    this.setState({
-      ACCESS_TOKEN,
-      ITEM_ID
-    });
-  }
-
   render() {
-    const { PLAID_PUBLIC_KEY, ACCESS_TOKEN } = this.state;
+    const { PLAID_PUBLIC_KEY } = this.state;
     const {
       fetchTransactions,
       dailyTransactions,
       transactionsByAccounts,
       transactionsByDateInputOutput,
-      accounts
+      accounts,
+      fetchAccessToken,
+      accessTokens
     } = this.props;
 
-    return ACCESS_TOKEN ? (
+    console.log(
+      transactionsCombinerByDayCount({
+        transactions: transactionsByDateInputOutput,
+        days: 7
+      })
+    );
+    return (
       <div>
-        <button onClick={() => fetchTransactions(ACCESS_TOKEN)}>
-          GET TRANSACTIONS
-        </button>
-        <Graph
-          dailyTransactions={dailyTransactions}
-          transactionsByAccounts={transactionsByAccounts}
-          transactionsByDateInputOutput={transactionsByDateInputOutput}
-          accounts={accounts}
-        />
+        <PlaidLink
+          clientName="testApp"
+          env={"development"}
+          product={["transactions"]}
+          publicKey={PLAID_PUBLIC_KEY}
+          onSuccess={fetchAccessToken}
+        >
+          Sign on modal
+        </PlaidLink>
+        {accessTokens.size !== 0 ? (
+          <div>
+            <button onClick={() => fetchTransactions({ accessTokens })}>
+              GET TRANSACTIONS
+            </button>
+            <Graph
+              dailyTransactions={dailyTransactions}
+              transactionsByAccounts={transactionsByAccounts}
+              transactionsByDateInputOutput={transactionsByDateInputOutput}
+              accounts={accounts}
+            />
+          </div>
+        ) : null}
       </div>
-    ) : (
-      <PlaidLink
-        clientName="testApp"
-        env={"development"}
-        product={["transactions"]}
-        publicKey={PLAID_PUBLIC_KEY}
-        onSuccess={this.handleOnLinkSuccess}
-      >
-        Sign on modal
-      </PlaidLink>
     );
   }
 }
@@ -74,7 +73,9 @@ class _App extends Component {
 _App.propTypes = {
   dailyTransactions: PropTypes.object,
   accounts: list,
-  fetchTransactions: PropTypes.func
+  fetchTransactions: PropTypes.func,
+  accessTokens: list,
+  transactionsByDateInputOutput: PropTypes.object
 };
 
 export default connect(
@@ -82,9 +83,11 @@ export default connect(
     dailyTransactions: dailyTransactionsSelector(state),
     transactionsByDateInputOutput: transactionsByDateInputOutputSelector(state),
     transactionsByAccounts: transactionsByAccountsSelector(state),
-    accounts: accountsSelector(state)
+    accounts: accountsSelector(state),
+    accessTokens: accessTokensSelector(state)
   }),
   dispatch => ({
-    fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken))
+    fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken)),
+    fetchAccessToken: token => dispatch(fetchAccessToken(token))
   })
 )(_App);
