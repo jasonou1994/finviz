@@ -6,10 +6,10 @@ import PlaidLink from "react-plaid-link";
 import { list } from "react-immutable-proptypes";
 import {
   accountsSelector,
-  dailyTransactionsSelector,
-  transactionsByAccountsSelector,
+  accessTokensSelector,
   transactionsByDateInputOutputSelector,
-  accessTokensSelector
+  transactionsByCategorySelector,
+  transactionsByNameSelector
 } from "../reducers";
 import { Graph } from "../components/Graph";
 import { transactionsCombinerByDayCount } from "../utils";
@@ -27,20 +27,13 @@ class _App extends Component {
     const { PLAID_PUBLIC_KEY } = this.state;
     const {
       fetchTransactions,
-      dailyTransactions,
-      transactionsByAccounts,
       transactionsByDateInputOutput,
-      accounts,
+      transactionsByCategory,
+      transactionsByName,
       fetchAccessToken,
       accessTokens
     } = this.props;
 
-    console.log(
-      transactionsCombinerByDayCount({
-        transactions: transactionsByDateInputOutput,
-        days: 7
-      })
-    );
     return (
       <div>
         <PlaidLink
@@ -55,13 +48,15 @@ class _App extends Component {
         {accessTokens.size !== 0 ? (
           <div>
             <button onClick={() => fetchTransactions({ accessTokens })}>
-              GET TRANSACTIONS
+              FETCH TRANSACTIONS
             </button>
             <Graph
-              dailyTransactions={dailyTransactions}
-              transactionsByAccounts={transactionsByAccounts}
-              transactionsByDateInputOutput={transactionsByDateInputOutput}
-              accounts={accounts}
+              transactionsByDate={transactionsCombinerByDayCount({
+                transactions: transactionsByDateInputOutput,
+                days: 7
+              })}
+              transactionsByCategory={transactionsByCategory}
+              transactionsByName={transactionsByName}
             />
           </div>
         ) : null}
@@ -71,18 +66,19 @@ class _App extends Component {
 }
 
 _App.propTypes = {
-  dailyTransactions: PropTypes.object,
   accounts: list,
   fetchTransactions: PropTypes.func,
   accessTokens: list,
-  transactionsByDateInputOutput: PropTypes.object
+  transactionsByDateInputOutput: PropTypes.object,
+  transactionsByCategory: PropTypes.object,
+  transactionsByName: PropTypes.object
 };
 
 export default connect(
   state => ({
-    dailyTransactions: dailyTransactionsSelector(state),
     transactionsByDateInputOutput: transactionsByDateInputOutputSelector(state),
-    transactionsByAccounts: transactionsByAccountsSelector(state),
+    transactionsByCategory: transactionsByCategorySelector(state),
+    transactionsByName: transactionsByNameSelector(state),
     accounts: accountsSelector(state),
     accessTokens: accessTokensSelector(state)
   }),

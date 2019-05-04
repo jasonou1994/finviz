@@ -71,3 +71,23 @@ export const transactionsCombinerByDayCount = ({ transactions, days = 1 }) => {
     return acc;
   }, {});
 };
+
+export const lineSeriesConverter = ({ transactions }) => {
+  const incomeData = Object.keys(transactions).map((key, i) => {
+    return {
+      x: i,
+      y: transactions[key].input
+    };
+  });
+  const spendingData = Object.keys(transactions).map((key, i) => {
+    return {
+      x: i,
+      y: transactions[key].output
+    };
+  });
+
+  return {
+    incomeData,
+    spendingData
+  };
+};

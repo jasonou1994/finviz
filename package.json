@@ -53,6 +53,7 @@
     "react-immutable-proptypes": "^2.1.0",
     "react-plaid-link": "^1.2.0",
     "react-redux": "^7.0.2",
+    "react-vis": "^1.11.7",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.8",
     "redux-saga": "^1.0.2",

@@ -20,6 +20,12 @@ export const transactionsByDateInputOutputSelector = state =>
   fromTransactions.transactionsByDateInputOutputSelector(state[TRANSACTIONS]);
 export const transactionsByAccountsSelector = state =>
   fromTransactions.transactionsByAccountsSelector(state[TRANSACTIONS]);
+export const transactionsNoIntraAccountSelector = state =>
+  fromTransactions.transactionsNoIntraAccountSelector(state[TRANSACTIONS]);
+export const transactionsByCategorySelector = state =>
+  fromTransactions.transactionsByCategorySelector(state[TRANSACTIONS]);
+export const transactionsByNameSelector = state =>
+  fromTransactions.transactionsByNameSelector(state[TRANSACTIONS]);
 
 //log in
 export const accessTokensSelector = state =>

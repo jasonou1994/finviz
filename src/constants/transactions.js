@@ -5,3 +5,8 @@ export const RESET_TRANSACTIONS = "RESET_TRANSACTTIONS";
 
 //STORE
 export const TRANSACTIONS = "transactions";
+
+//REDUCER
+export const AMOUNT = "amount";
+export const CATEGORY = "category";
+export const NAME = "name";

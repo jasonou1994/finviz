@@ -5,7 +5,10 @@ import {
   SET_ACCOUNTS,
   TRANSACTIONS,
   ACCOUNTS,
-  RESET_TRANSACTIONS
+  RESET_TRANSACTIONS,
+  AMOUNT,
+  CATEGORY,
+  NAME
 } from "../constants/index";
 
 const initialState = Map({
@@ -37,11 +40,36 @@ export default function transactions(state = initialState, action) {
 
   return newState;
 }
+export const getTypeOfAccount = ({ accounts, id }) => {
+  const account = accounts.find(account => account.account_id === id);
+
+  return account ? account.type : null;
+};
 
 export const transactionsSelector = state => state.get(TRANSACTIONS);
 export const accountsSelector = state => state.get(ACCOUNTS);
-export const dailyTransactionsSelector = createSelector(
+
+export const transactionsNoIntraAccountSelector = createSelector(
   transactionsSelector,
+  accountsSelector,
+  (transactions, accounts) => {
+    return transactions.filter(tx => {
+      const accountType = getTypeOfAccount({
+        id: tx.account_id,
+        accounts
+      });
+
+      return !accountType ||
+        (accountType === "credit" && tx.amount < 0) ||
+        (accountType === "depository" && tx.amount > 0)
+        ? false
+        : true;
+    });
+  }
+);
+
+export const dailyTransactionsSelector = createSelector(
+  transactionsNoIntraAccountSelector,
   transactions => {
     const uniqueDates = [...new Set(transactions.map(tx => tx.date))].reduce(
       (acc, cur) => {
@@ -61,12 +89,6 @@ export const dailyTransactionsSelector = createSelector(
   }
 );
 
-export const getTypeOfAccount = ({ accounts, id }) => {
-  const account = accounts.find(account => account.account_id === id);
-
-  return account ? account.type : null;
-};
-
 export const transactionsByDateInputOutputSelector = createSelector(
   dailyTransactionsSelector,
   accountsSelector,
@@ -78,19 +100,6 @@ export const transactionsByDateInputOutputSelector = createSelector(
             id: cur.account_id,
             accounts
           });
-
-          //for the order of reducers
-          if (!accountType) {
-            return acc;
-          }
-
-          //do nothing for intraaccount transactions, i.e. transfer money from checkings to pay debt
-          if (
-            (accountType === "credit" && cur.amount < 0) ||
-            (accountType === "depository" && cur.amount > 0)
-          ) {
-            return acc;
-          }
 
           accountType === "credit"
             ? (acc.output += cur.amount)
@@ -107,6 +116,54 @@ export const transactionsByDateInputOutputSelector = createSelector(
       return result;
     }, {});
   }
+);
+
+export const transactionsByCategorySelector = createSelector(
+  transactionsNoIntraAccountSelector,
+  transactions =>
+    transactions.reduce((acc, cur) => {
+      if (!cur[CATEGORY]) {
+        return acc;
+      }
+
+      const category = cur[CATEGORY][0];
+
+      if (acc[category]) {
+        acc[category][AMOUNT] += cur[AMOUNT];
+        acc[category][TRANSACTIONS].push(cur);
+      } else {
+        acc[category] = {
+          [AMOUNT]: cur[AMOUNT],
+          [TRANSACTIONS]: [cur]
+        };
+      }
+
+      return acc;
+    }, {})
+);
+
+export const transactionsByNameSelector = createSelector(
+  transactionsNoIntraAccountSelector,
+  transactions =>
+    transactions.reduce((acc, cur) => {
+      if (!cur[NAME]) {
+        return acc;
+      }
+
+      const name = cur[NAME];
+
+      if (acc[name]) {
+        acc[name][AMOUNT] += cur[AMOUNT];
+        acc[name][TRANSACTIONS].push(cur);
+      } else {
+        acc[name] = {
+          [AMOUNT]: cur[AMOUNT],
+          [TRANSACTIONS]: [cur]
+        };
+      }
+
+      return acc;
+    }, {})
 );
 
 export const transactionsByAccountsSelector = createSelector(

@@ -1,18 +1,47 @@
 import React, { Component } from "react";
-import { list } from "react-immutable-proptypes";
+import { object } from "prop-types";
+import "../../node_modules/react-vis/dist/style.css";
+import {
+  XYPlot,
+  LineSeries,
+  VerticalGridLines,
+  HorizontalGridLines,
+  XAxis,
+  YAxis,
+  VerticalBarSeries,
+  MarkSeries
+} from "react-vis";
+import { lineSeriesConverter } from "../utils";
 
-import PropTypes from "prop-types";
 export class Graph extends Component {
   render() {
-    const { transactionsByDateInputOutput } = this.props;
-    console.log(transactionsByDateInputOutput);
+    const {
+      transactionsByCategory,
+      transactionsByDate,
+      transactionsByName
+    } = this.props;
 
-    return <div />;
+    console.log(transactionsByDate);
+    const { incomeData, spendingData } = lineSeriesConverter({
+      transactions: transactionsByDate
+    });
+
+    return (
+      <div>
+        <XYPlot height={400} width={600}>
+          <VerticalGridLines />
+          <HorizontalGridLines />
+          <XAxis />
+          <YAxis />
+          <LineSeries data={incomeData} />
+          <LineSeries data={spendingData} />
+        </XYPlot>
+      </div>
+    );
   }
 }
 Graph.propTypes = {
-  dailyTransactions: PropTypes.object.isRequired,
-  transactionsByAccounts: PropTypes.object.isRequired,
-  transactionsByDateInputOutput: PropTypes.object.isRequired,
-  accounts: list
+  transactionsByDate: object.isRequired,
+  transactionsByCategory: object.isRequired,
+  transactionsByName: object.isRequired
 };
