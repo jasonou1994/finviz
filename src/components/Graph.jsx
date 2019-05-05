@@ -21,14 +21,14 @@ export class Graph extends Component {
       transactionsByName
     } = this.props;
 
-    console.log(transactionsByDate);
+    // console.log(transactionsByDate);
     const { incomeData, spendingData } = lineSeriesConverter({
       transactions: transactionsByDate
     });
 
     return (
       <div>
-        <XYPlot height={400} width={600}>
+        <XYPlot height={250} width={600}>
           <VerticalGridLines />
           <HorizontalGridLines />
           <XAxis />

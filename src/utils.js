@@ -1,4 +1,5 @@
 import moment from "moment";
+import { cloneDeep } from "lodash";
 
 export const getStartEndTimePairsForPastMonths = (months = 12) => {
   const now = moment();
@@ -59,7 +60,7 @@ export const transactionsCombinerByDayCount = ({ transactions, days = 1 }) => {
     const keyMap = orderedDates[newIndex * days];
     if (!acc[keyMap]) {
       //if keyMap in acc doesnt exist
-      acc[keyMap] = transactions[cur];
+      acc[keyMap] = cloneDeep(transactions[cur]);
     } else {
       //if it does exist
       acc[keyMap].input = acc[keyMap].input + transactions[cur].input;

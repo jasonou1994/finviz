@@ -1,11 +1,13 @@
 import { combineReducers } from "redux";
 import transactions, * as fromTransactions from "./transactions";
 import login, * as fromLogin from "./login";
-import { TRANSACTIONS, LOGIN } from "../constants";
+import graph, * as fromGraph from "./graph";
+import { TRANSACTIONS, LOGIN, GRAPH } from "../constants";
 
 const reducers = combineReducers({
   transactions,
-  login
+  login,
+  graph
 });
 export default reducers;
 
@@ -30,3 +32,7 @@ export const transactionsByNameSelector = state =>
 //log in
 export const accessTokensSelector = state =>
   fromLogin.accessTokensSelector(state[LOGIN]);
+
+//graph
+export const graphFidelitySelector = state =>
+  fromGraph.graphFidelitySelector(state[GRAPH]);

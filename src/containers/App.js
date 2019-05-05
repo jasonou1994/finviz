@@ -9,10 +9,13 @@ import {
   accessTokensSelector,
   transactionsByDateInputOutputSelector,
   transactionsByCategorySelector,
-  transactionsByNameSelector
+  transactionsByNameSelector,
+  graphFidelitySelector
 } from "../reducers";
+import { transactionsByDateInputOutputSelector as test } from "../reducers/transactions";
 import { Graph } from "../components/Graph";
 import { transactionsCombinerByDayCount } from "../utils";
+import GraphOptionsContainer from "./GraphOptionsContainer";
 
 class _App extends Component {
   constructor(props) {
@@ -31,7 +34,8 @@ class _App extends Component {
       transactionsByCategory,
       transactionsByName,
       fetchAccessToken,
-      accessTokens
+      accessTokens,
+      graphFidelity
     } = this.props;
 
     return (
@@ -53,11 +57,12 @@ class _App extends Component {
             <Graph
               transactionsByDate={transactionsCombinerByDayCount({
                 transactions: transactionsByDateInputOutput,
-                days: 7
+                days: graphFidelity
               })}
               transactionsByCategory={transactionsByCategory}
               transactionsByName={transactionsByName}
             />
+            <GraphOptionsContainer />
           </div>
         ) : null}
       </div>
@@ -71,7 +76,8 @@ _App.propTypes = {
   accessTokens: list,
   transactionsByDateInputOutput: PropTypes.object,
   transactionsByCategory: PropTypes.object,
-  transactionsByName: PropTypes.object
+  transactionsByName: PropTypes.object,
+  graphFidelity: PropTypes.number
 };
 
 export default connect(
@@ -80,7 +86,8 @@ export default connect(
     transactionsByCategory: transactionsByCategorySelector(state),
     transactionsByName: transactionsByNameSelector(state),
     accounts: accountsSelector(state),
-    accessTokens: accessTokensSelector(state)
+    accessTokens: accessTokensSelector(state),
+    graphFidelity: graphFidelitySelector(state)
   }),
   dispatch => ({
     fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken)),
