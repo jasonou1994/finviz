@@ -2,7 +2,10 @@ import { combineReducers } from "redux";
 import transactions, * as fromTransactions from "./transactions";
 import login, * as fromLogin from "./login";
 import graph, * as fromGraph from "./graph";
-import { TRANSACTIONS, LOGIN, GRAPH } from "../constants";
+import { TRANSACTIONS, LOGIN, GRAPH, INPUT, OUTPUT } from "../constants";
+import { createSelector } from "reselect";
+import { cloneDeep } from "lodash";
+import moment from "moment";
 
 const reducers = combineReducers({
   transactions,
@@ -36,3 +39,32 @@ export const accessTokensSelector = state =>
 //graph
 export const graphFidelitySelector = state =>
   fromGraph.graphFidelitySelector(state[GRAPH]);
+
+//COMBINED
+export const transactionsByDayCountCombinedSelector = createSelector(
+  transactionsByDateInputOutputSelector,
+  graphFidelitySelector,
+  (transactions, days) => {
+    const orderedDates = Object.keys(transactions)
+      .map(date => moment(date, "YYYY-MM-DD", true))
+      .sort((a, b) => b - a)
+      .map(date => date.format("YYYY-MM-DD"));
+
+    return orderedDates.reduce((acc, cur, i) => {
+      const newIndex = Math.floor(i / days); //newIndex is 0
+      const keyMap = orderedDates[newIndex * days];
+      if (!acc[keyMap]) {
+        //if keyMap in acc doesnt exist
+        acc[keyMap] = cloneDeep(transactions[cur]);
+      } else {
+        //if it does exist
+        acc[keyMap][INPUT] = acc[keyMap][INPUT] + transactions[cur][INPUT];
+        acc[keyMap][OUTPUT] = acc[keyMap][OUTPUT] + transactions[cur][OUTPUT];
+        acc[keyMap][TRANSACTIONS] = acc[keyMap][TRANSACTIONS].concat(
+          transactions[cur][TRANSACTIONS]
+        );
+      }
+      return acc;
+    }, {});
+  }
+);

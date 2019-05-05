@@ -10,3 +10,7 @@ export const TRANSACTIONS = "transactions";
 export const AMOUNT = "amount";
 export const CATEGORY = "category";
 export const NAME = "name";
+
+//ETC
+export const INPUT = "input";
+export const OUTPUT = "output";
