@@ -1,5 +1,4 @@
-import { Map, List, Set } from "immutable";
-import { createSelector } from "reselect";
+import { Map, List } from "immutable";
 import { ACCESS_TOKENS, SET_ACCESS_TOKEN } from "../constants/index";
 
 const initialState = Map({

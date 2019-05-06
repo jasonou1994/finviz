@@ -1,5 +1,4 @@
-import { Map, List, Set } from "immutable";
-import { createSelector } from "reselect";
+import { Map } from "immutable";
 import { GRAPH_FIDELITY, SET_GRAPH_FIDELITY } from "../constants/index";
 
 const initialState = Map({

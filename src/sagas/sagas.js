@@ -1,4 +1,4 @@
-import { call, all, put, takeEvery, takeLatest } from "redux-saga/effects";
+import { call, all, put, takeLatest } from "redux-saga/effects";
 import {
   setTransactions,
   setAccounts,

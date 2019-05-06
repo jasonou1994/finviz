@@ -11,30 +11,8 @@ import {
 } from "../reducers";
 import { GraphOptions } from "../components/GraphOptions";
 import { Graph } from "../components/Graph";
-import { INPUT, OUTPUT } from "../constants";
 
 class _GraphContainer extends Component {
-  lineSeriesConverter = () => {
-    const { transactionsByDayCountCombined: transactions } = this.props;
-
-    const incomeData = Object.keys(transactions).map((key, i) => {
-      return {
-        x: i,
-        y: transactions[key][INPUT]
-      };
-    });
-    const spendingData = Object.keys(transactions).map((key, i) => {
-      return {
-        x: i,
-        y: transactions[key][OUTPUT]
-      };
-    });
-
-    return {
-      incomeData,
-      spendingData
-    };
-  };
   render() {
     const {
       setGraphFidelity,
@@ -43,18 +21,15 @@ class _GraphContainer extends Component {
       transactionsByCategory,
       transactionsByName
     } = this.props;
-    const { incomeData, spendingData } = this.lineSeriesConverter();
 
     const isData = !isEmpty(transactionsByDayCountCombined) ? true : false;
-    console.log(transactionsByDayCountCombined);
 
     return (
       <div>
         {isData ? (
           <>
             <Graph
-              incomeData={incomeData}
-              spendingData={spendingData}
+              transactionsByDayCountCombined={transactionsByDayCountCombined}
               transactionsByCategory={transactionsByCategory}
               transactionsByName={transactionsByName}
             />
