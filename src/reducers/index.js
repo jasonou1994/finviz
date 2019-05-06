@@ -1,16 +1,19 @@
 import { combineReducers } from "redux";
-import transactions, * as fromTransactions from "./transactions";
-import login, * as fromLogin from "./login";
-import graph, * as fromGraph from "./graph";
-import { TRANSACTIONS, LOGIN, GRAPH, INPUT, OUTPUT } from "../constants";
 import { createSelector } from "reselect";
 import { cloneDeep } from "lodash";
 import moment from "moment";
 
+import transactions, * as fromTransactions from "./transactions";
+import login, * as fromLogin from "./login";
+import graph, * as fromGraph from "./graph";
+import grid, * as fromGrid from "./grid";
+import { TRANSACTIONS, LOGIN, GRAPH, INPUT, OUTPUT, GRID } from "../constants";
+
 const reducers = combineReducers({
   transactions,
   login,
-  graph
+  graph,
+  grid
 });
 export default reducers;
 
@@ -39,6 +42,10 @@ export const accessTokensSelector = state =>
 //graph
 export const graphFidelitySelector = state =>
   fromGraph.graphFidelitySelector(state[GRAPH]);
+
+//grid
+export const selectedTransactionKeySelector = state =>
+  fromGrid.selectedTransactionKeySelector(state[GRID]);
 
 //COMBINED
 export const transactionsByDayCountCombinedSelector = createSelector(

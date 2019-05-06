@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { setGraphFidelity } from "../actions/index";
+import { setGraphFidelity, setSelectedTransactionKey } from "../actions/index";
 import { object, func, number } from "prop-types";
 import { isEmpty } from "lodash";
 import {
@@ -19,7 +19,8 @@ class _GraphContainer extends Component {
       graphFidelity,
       transactionsByDayCountCombined,
       transactionsByCategory,
-      transactionsByName
+      transactionsByName,
+      setSelectedTransactionKey
     } = this.props;
 
     const isData = !isEmpty(transactionsByDayCountCombined) ? true : false;
@@ -32,6 +33,7 @@ class _GraphContainer extends Component {
               transactionsByDayCountCombined={transactionsByDayCountCombined}
               transactionsByCategory={transactionsByCategory}
               transactionsByName={transactionsByName}
+              setSelectedTransactionKey={setSelectedTransactionKey}
             />
             <GraphOptions
               graphFidelity={graphFidelity}
@@ -51,7 +53,8 @@ _GraphContainer.propTypes = {
   setGraphFidelity: func.isRequired,
   transactionsByDayCountCombined: object.isRequired,
   transactionsByCategory: object.isRequired,
-  transactionsByName: object.isRequired
+  transactionsByName: object.isRequired,
+  setSelectedTransactionKey: func.isRequired
 };
 
 export default connect(
@@ -64,6 +67,7 @@ export default connect(
     transactionsByName: transactionsByNameSelector(state)
   }),
   dispatch => ({
-    setGraphFidelity: fidelity => dispatch(setGraphFidelity(fidelity))
+    setGraphFidelity: fidelity => dispatch(setGraphFidelity(fidelity)),
+    setSelectedTransactionKey: key => dispatch(setSelectedTransactionKey(key))
   })
 )(_GraphContainer);
