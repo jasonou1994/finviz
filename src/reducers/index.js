@@ -80,13 +80,13 @@ export const selectedTransactionsSelector = createSelector(
   transactionsByDayCountCombinedSelector,
   selectedTransactionKeySelector,
   (transactions, selectedKey) => {
-    if (isEmpty(transactions) || selectedKey === "") {
-      return {
-        input: 0,
-        output: 0,
-        transactions: []
-      };
-    }
-    return transactions[selectedKey];
+    console.log(transactions, selectedKey);
+    return isEmpty(transactions) || selectedKey === ""
+      ? {
+          input: 0,
+          output: 0,
+          transactions: []
+        }
+      : transactions[selectedKey];
   }
 );

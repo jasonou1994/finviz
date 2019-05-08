@@ -77,7 +77,7 @@ export class Graph extends Component {
     return (
       <div>
         <XYPlot
-          height={500}
+          height={300}
           width={600}
           xType="time"
           margin={{ left: 70, right: 10, top: 10, bottom: 70 }}

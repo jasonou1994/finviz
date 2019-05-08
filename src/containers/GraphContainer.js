@@ -38,6 +38,7 @@ class _GraphContainer extends Component {
             <GraphOptions
               graphFidelity={graphFidelity}
               setGraphFidelity={setGraphFidelity}
+              setSelectedTransactionKey={setSelectedTransactionKey}
             />
           </>
         ) : (

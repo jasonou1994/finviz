@@ -3,8 +3,6 @@ import {
   SELECTED_TRANSACTION_KEY,
   SET_SELECTED_TRANSACTION_KEY
 } from "../constants/index";
-import { createSelector } from "reselect";
-import { transactionsByDayCountCombinedSelector } from "./transactions";
 
 const initialState = Map({
   [SELECTED_TRANSACTION_KEY]: ""

@@ -46,6 +46,15 @@ export const getTypeOfAccount = ({ accounts, id }) => {
 
   return account ? account.type : null;
 };
+export const getAccountName = ({ accounts, id }) => {
+  const account = accounts.find(account => account.account_id === id);
+
+  return account
+    ? account.official_name
+      ? account.official_name
+      : account.name
+    : null;
+};
 
 export const transactionsSelector = state => state.get(TRANSACTIONS);
 export const accountsSelector = state => state.get(ACCOUNTS);
