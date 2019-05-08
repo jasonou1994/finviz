@@ -1,13 +1,12 @@
 import { combineReducers } from "redux";
 import { createSelector } from "reselect";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEmpty } from "lodash";
 import moment from "moment";
-
 import transactions, * as fromTransactions from "./transactions";
 import login, * as fromLogin from "./login";
 import graph, * as fromGraph from "./graph";
 import grid, * as fromGrid from "./grid";
-import { TRANSACTIONS, LOGIN, GRAPH, INPUT, OUTPUT, GRID } from "../constants";
+import { TRANSACTIONS, LOGIN, GRAPH, GRID, INPUT, OUTPUT } from "../constants";
 
 const reducers = combineReducers({
   transactions,
@@ -44,10 +43,11 @@ export const graphFidelitySelector = state =>
   fromGraph.graphFidelitySelector(state[GRAPH]);
 
 //grid
-export const selectedTransactionKeySelector = state =>
-  fromGrid.selectedTransactionKeySelector(state[GRID]);
+export const selectedTransactionKeySelector = state => {
+  return fromGrid.selectedTransactionKeySelector(state[GRID]);
+};
 
-//COMBINED
+//combined
 export const transactionsByDayCountCombinedSelector = createSelector(
   transactionsByDateInputOutputSelector,
   graphFidelitySelector,
@@ -73,5 +73,20 @@ export const transactionsByDayCountCombinedSelector = createSelector(
       }
       return acc;
     }, {});
+  }
+);
+
+export const selectedTransactionsSelector = createSelector(
+  transactionsByDayCountCombinedSelector,
+  selectedTransactionKeySelector,
+  (transactions, selectedKey) => {
+    if (isEmpty(transactions) || selectedKey === "") {
+      return {
+        input: 0,
+        output: 0,
+        transactions: []
+      };
+    }
+    return transactions[selectedKey];
   }
 );

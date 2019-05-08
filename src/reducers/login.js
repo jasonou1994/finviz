@@ -3,8 +3,8 @@ import { ACCESS_TOKENS, SET_ACCESS_TOKEN } from "../constants/index";
 
 const initialState = Map({
   [ACCESS_TOKENS]: List([
-    "access-development-4c9d03ed-08b6-417f-9c0c-d972490568d3",
-    "access-development-c5ee827e-1eab-4ea2-957f-53a70998f0a7"
+    "access-development-b5ba0e81-997a-4883-bc93-4f660f6d0a84",
+    "access-development-80d68117-a3bc-40e6-a9d1-400a14f815fc"
   ])
 });
 

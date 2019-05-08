@@ -9,7 +9,8 @@ import {
   AMOUNT,
   CATEGORY,
   NAME
-} from "../constants/index";
+} from "../constants";
+import { graphFidelitySelector } from "./graph";
 
 const initialState = Map({
   [TRANSACTIONS]: List(),

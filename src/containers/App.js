@@ -6,6 +6,7 @@ import PlaidLink from "react-plaid-link";
 import { list } from "react-immutable-proptypes";
 import { accountsSelector, accessTokensSelector } from "../reducers";
 import GraphContainer from "./GraphContainer";
+import GridContainer from "./GridContainer";
 
 class _App extends Component {
   constructor(props) {
@@ -37,6 +38,7 @@ class _App extends Component {
               FETCH TRANSACTIONS
             </button>
             <GraphContainer />
+            <GridContainer />
           </>
         ) : (
           <div>Please add accounts.</div>
