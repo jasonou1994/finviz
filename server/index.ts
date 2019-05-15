@@ -1,6 +1,7 @@
-const express = require("express");
+import express = require("express");
 const bodyParser = require("body-parser");
 import { Client, environments } from "plaid";
+import { getTransactionsSSE } from "./transactionsController";
 
 const vars = {
   PLAID_CLIENT_ID: "5c52345ce341ed0010a522f1",
@@ -20,7 +21,11 @@ const client = new Client(
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(function(req, res, next) {
+app.use(function(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -29,7 +34,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.post("/get_access_token", (req, res) => {
+app.post("/get_access_token", (req: express.Request, res: express.Response) => {
   const { public_token: PUBLIC_TOKEN } = req.body;
   console.log(PUBLIC_TOKEN);
   client.exchangePublicToken(PUBLIC_TOKEN, (err, tokenResponse) => {
@@ -47,29 +52,37 @@ app.post("/get_access_token", (req, res) => {
   });
 });
 
-app.post("/transactions", (req, res) => {
+// app.post("/transactions", async (req, res) => {
+//   console.log("In /transactions POST endpoint.");
+//   const { accessTokens, start, end } = req.body;
+
+//   res.header("Content-Type", "text/event-stream");
+//   res.header("Cache-Control", "no-cache");
+//   res.header("Connection", "keep-alive");
+
+//   const result = await getTransactions({ accessTokens, start, end, res });
+
+//   if (result.error) {
+//     return res.json({ err: result.error });
+//   }
+
+//   const { transactions, accounts } = result;
+//   res.json({
+//     transactions,
+//     accounts
+//   });
+// });
+
+app.post("/transactionsSSE", (req: express.Request, res: express.Response) => {
   console.log("In /transactions POST endpoint.");
-  const { accessToken, start, end } = req.body;
+  const { accessTokens, start, end } = req.body;
 
-  client.getTransactions(
-    accessToken,
-    start,
-    end,
-    {
-      count: 500
-    },
-    (err, result) => {
-      if (err) {
-        return res.json({ err });
-      }
+  res.header("Content-Type", "text/event-stream");
+  res.header("Cache-Control", "no-cache");
+  res.header("Connection", "keep-alive");
 
-      const { transactions, accounts } = result;
-      res.json({
-        transactions,
-        accounts
-      });
-    }
-  );
+  getTransactionsSSE({ accessTokens, start, end, res });
+  return;
 });
 
 app.listen(8000, () => {

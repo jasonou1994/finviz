@@ -1,7 +1,9 @@
 import {
   FETCH_TRANSACTIONS,
   SET_TRANSACTIONS,
-  RESET_TRANSACTIONS
+  RESET_TRANSACTIONS,
+  START_LOADING_TRANSACTIONS,
+  STOP_LOADING_TRANSACTIONS
 } from "../constants/index";
 
 export const fetchTransactions = accessToken => ({
@@ -16,4 +18,12 @@ export const setTransactions = transactions => ({
 
 export const resetTransactions = () => ({
   type: RESET_TRANSACTIONS
+});
+
+export const startLoadingTransactions = () => ({
+  type: START_LOADING_TRANSACTIONS
+});
+
+export const stopLoadingTransactions = () => ({
+  type: STOP_LOADING_TRANSACTIONS
 });

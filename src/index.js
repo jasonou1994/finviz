@@ -27,5 +27,5 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
-store.dispatch(transactions);
-store.dispatch(accounts);
+// store.dispatch(transactions);
+// store.dispatch(accounts);

@@ -1,12 +1,21 @@
-import { call, all, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeLatest } from "redux-saga/effects";
+import moment from "moment";
 import {
   setTransactions,
   setAccounts,
   resetTransactions,
-  setAccessToken
+  setAccessToken,
+  startLoadingTransactions,
+  stopLoadingTransactions
 } from "../actions/index";
-import { FETCH_TRANSACTIONS, FETCH_ACCESS_TOKEN } from "../constants";
-import { getStartEndTimePairsForPastMonths, combineMonthData } from "../utils";
+import {
+  FETCH_TRANSACTIONS,
+  FETCH_ACCESS_TOKEN,
+  ACCOUNTS,
+  TRANSACTIONS,
+  FETCH_LOG_IN
+} from "../constants";
+import { parseSSEFields } from "../utils";
 
 function* getPublicToken({ payload: publicToken }) {
   try {
@@ -36,54 +45,79 @@ function* getPublicToken({ payload: publicToken }) {
 }
 
 function* fetchTransactions({ payload: { accessTokens } }) {
-  const dateArray = getStartEndTimePairsForPastMonths();
-
+  yield put(startLoadingTransactions());
+  yield put(resetTransactions());
   try {
-    yield put(resetTransactions());
-
-    const responses = yield all(
-      dateArray.reduce((acc, date) => {
-        const { yesterday: start, today: end } = date;
-
-        accessTokens.forEach(accessToken => {
-          acc.push(
-            call(fetch, "http://localhost:8000/transactions", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                accessToken,
-                start,
-                end
-              })
-            })
-          );
-        });
-
-        return acc;
-      }, [])
-    );
-
-    const responseJsons = yield all(
-      responses.map(res => {
-        const bound = res.json.bind(res);
-        return call(bound, res);
+    const start = moment()
+      .subtract(5, "year")
+      .format("YYYY-MM-DD");
+    const end = moment().format("YYYY-MM-DD");
+    const res = yield call(fetch, "http://localhost:8000/transactionsSSE", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        accessTokens,
+        start,
+        end
       })
-    );
+    });
 
-    const { transactions, accounts } = combineMonthData(responseJsons);
+    const reader = yield res.body.getReader();
+    const decoder = yield new TextDecoder("utf-8");
 
-    yield put(setTransactions(transactions));
-    yield put(setAccounts(accounts));
+    let complete = false;
+    let dataString = "";
+
+    while (!complete) {
+      const chunk = yield reader.read();
+      dataString += yield decoder.decode(chunk.value);
+
+      const possibleEventArr = dataString.split(/\n\n/g);
+      let eventsFound = 0;
+
+      for (const [i, message] of possibleEventArr.entries()) {
+        if (i === possibleEventArr.length - 1) {
+          continue;
+        }
+
+        eventsFound++;
+        const { id, data, event } = parseSSEFields(message);
+
+        if (id === "CLOSE") {
+          complete = true;
+        }
+
+        switch (event) {
+          case ACCOUNTS: {
+            yield put(setAccounts(JSON.parse(data)));
+            break;
+          }
+          case TRANSACTIONS: {
+            yield put(setTransactions(JSON.parse(data)));
+            break;
+          }
+        }
+      }
+      possibleEventArr.splice(0, eventsFound);
+      dataString = possibleEventArr.join("\n\n");
+    }
   } catch (e) {
     console.error("Error in fetchTransactions:", e);
   }
+
+  yield put(stopLoadingTransactions());
+}
+
+function* fetchLogIn({ payload: { user, password } }) {
+  console.log("SAGA:", user, password);
 }
 
 function* saga() {
   yield takeLatest(FETCH_TRANSACTIONS, fetchTransactions);
   yield takeLatest(FETCH_ACCESS_TOKEN, getPublicToken);
+  yield takeLatest(FETCH_LOG_IN, fetchLogIn);
 }
 
 export default saga;

@@ -3,15 +3,15 @@ import { connect } from "react-redux";
 import {
   selectedTransactionsSelector,
   selectedTransactionKeySelector,
-  accountsSelector
+  accountsSelector,
+  isLoadingSelector
 } from "../reducers";
-import { object, func, number, string, array } from "prop-types";
+import { object, func, number, string, array, boolean } from "prop-types";
 import { Grid } from "../components/Grid";
 
 class _GridContainer extends Component {
   render() {
     const { selectedTransactions, accounts } = this.props;
-    console.log(selectedTransactions);
 
     return (
       <div>

@@ -29,15 +29,15 @@ class _GraphContainer extends Component {
       <div>
         {isData ? (
           <>
+            <GraphOptions
+              graphFidelity={graphFidelity}
+              setGraphFidelity={setGraphFidelity}
+              setSelectedTransactionKey={setSelectedTransactionKey}
+            />
             <Graph
               transactionsByDayCountCombined={transactionsByDayCountCombined}
               transactionsByCategory={transactionsByCategory}
               transactionsByName={transactionsByName}
-              setSelectedTransactionKey={setSelectedTransactionKey}
-            />
-            <GraphOptions
-              graphFidelity={graphFidelity}
-              setGraphFidelity={setGraphFidelity}
               setSelectedTransactionKey={setSelectedTransactionKey}
             />
           </>

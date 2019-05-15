@@ -76,6 +76,7 @@ export class Graph extends Component {
 
     return (
       <div>
+        <div style={{ fontSize: "18px" }}>Transactions by Time</div>
         <XYPlot
           height={300}
           width={600}

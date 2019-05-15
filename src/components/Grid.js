@@ -64,7 +64,6 @@ export class Grid extends Component {
 
     return (
       <div>
-        Grid
         <div>Income: {`${input}`}</div>
         <div>Spending: {`${output}`}</div>
         <div

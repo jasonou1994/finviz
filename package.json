@@ -5,6 +5,7 @@
   "dependencies": {
     "@babel/core": "7.2.2",
     "@svgr/webpack": "4.1.0",
+    "@types/express": "^4.16.1",
     "ag-grid-community": "^20.2.0",
     "ag-grid-react": "^20.2.0",
     "babel-core": "7.0.0-bridge.0",
@@ -37,11 +38,13 @@
     "jest-pnp-resolver": "1.0.2",
     "jest-resolve": "23.6.0",
     "jest-watch-typeahead": "^0.2.1",
+    "knex": "^0.16.5",
     "lodash": "^4.17.11",
     "mini-css-extract-plugin": "0.5.0",
     "moment": "^2.24.0",
     "nodemon": "^1.18.11",
     "optimize-css-assets-webpack-plugin": "5.0.1",
+    "pg": "^7.11.0",
     "plaid": "^3.1.1",
     "pnp-webpack-plugin": "1.2.1",
     "postcss-flexbugs-fixes": "4.1.0",
@@ -65,6 +68,8 @@
     "sass-loader": "7.1.0",
     "style-loader": "0.23.1",
     "terser-webpack-plugin": "1.2.2",
+    "ts-node-dev": "^1.0.0-pre.39",
+    "typescript": "^3.4.5",
     "url-loader": "1.1.2",
     "webpack": "4.28.3",
     "webpack-dev-server": "3.1.14",
@@ -74,7 +79,10 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpileOnly ./server/index.ts",
+    "prod": "tsc && node -r esm ./build/index.js"
   },
   "eslintConfig": {
     "extends": "react-app"

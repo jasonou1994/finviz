@@ -21,6 +21,8 @@ export const transactionsSelector = state =>
   fromTransactions.transactionsSelector(state[TRANSACTIONS]);
 export const accountsSelector = state =>
   fromTransactions.accountsSelector(state[TRANSACTIONS]);
+export const isLoadingSelector = state =>
+  fromTransactions.isLoadingSelector(state[TRANSACTIONS]);
 export const dailyTransactionsSelector = state =>
   fromTransactions.dailyTransactionsSelector(state[TRANSACTIONS]);
 export const transactionsByDateInputOutputSelector = state =>
@@ -37,6 +39,9 @@ export const transactionsByNameSelector = state =>
 //log in
 export const accessTokensSelector = state =>
   fromLogin.accessTokensSelector(state[LOGIN]);
+export const loggedInSelector = state =>
+  fromLogin.loggedInSelector(state[LOGIN]);
+export const userSelector = state => fromLogin.userSelector(state[LOGIN]);
 
 //graph
 export const graphFidelitySelector = state =>

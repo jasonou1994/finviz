@@ -8,13 +8,16 @@ import {
   RESET_TRANSACTIONS,
   AMOUNT,
   CATEGORY,
-  NAME
+  NAME,
+  IS_LOADING,
+  START_LOADING_TRANSACTIONS,
+  STOP_LOADING_TRANSACTIONS
 } from "../constants";
-import { graphFidelitySelector } from "./graph";
 
 const initialState = Map({
   [TRANSACTIONS]: List(),
-  [ACCOUNTS]: List()
+  [ACCOUNTS]: List(),
+  [IS_LOADING]: false
 });
 
 export default function transactions(state = initialState, action) {
@@ -27,11 +30,31 @@ export default function transactions(state = initialState, action) {
       break;
     }
     case SET_ACCOUNTS: {
-      newState = state.setIn([ACCOUNTS], List(payload));
+      newState = state.updateIn([ACCOUNTS], accounts => {
+        return payload.reduce((accounts, testAccount) => {
+          if (
+            !accounts.find(
+              existingAccount =>
+                existingAccount.account_id === testAccount.account_id
+            )
+          ) {
+            accounts = accounts.push(testAccount);
+          }
+          return accounts;
+        }, accounts);
+      });
       break;
     }
     case RESET_TRANSACTIONS: {
       newState = state.set(TRANSACTIONS, List());
+      break;
+    }
+    case START_LOADING_TRANSACTIONS: {
+      newState = state.set(IS_LOADING, true);
+      break;
+    }
+    case STOP_LOADING_TRANSACTIONS: {
+      newState = state.set(IS_LOADING, false);
       break;
     }
     default: {
@@ -58,6 +81,7 @@ export const getAccountName = ({ accounts, id }) => {
 
 export const transactionsSelector = state => state.get(TRANSACTIONS);
 export const accountsSelector = state => state.get(ACCOUNTS);
+export const isLoadingSelector = state => state.get(IS_LOADING);
 
 export const transactionsNoIntraAccountSelector = createSelector(
   transactionsSelector,

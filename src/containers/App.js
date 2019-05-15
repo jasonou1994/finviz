@@ -4,9 +4,16 @@ import { fetchTransactions, fetchAccessToken } from "../actions/index";
 import PropTypes from "prop-types";
 import PlaidLink from "react-plaid-link";
 import { list } from "react-immutable-proptypes";
-import { accountsSelector, accessTokensSelector } from "../reducers";
+import {
+  accountsSelector,
+  accessTokensSelector,
+  isLoadingSelector,
+  loggedInSelector
+} from "../reducers";
 import GraphContainer from "./GraphContainer";
 import GridContainer from "./GridContainer";
+import LoadingContainer from "./LoadingContainer";
+import LogInContainer from "./LogInContainer";
 
 class _App extends Component {
   constructor(props) {
@@ -19,9 +26,15 @@ class _App extends Component {
 
   render() {
     const { PLAID_PUBLIC_KEY } = this.state;
-    const { fetchTransactions, fetchAccessToken, accessTokens } = this.props;
+    const {
+      fetchTransactions,
+      fetchAccessToken,
+      accessTokens,
+      isLoading,
+      loggedIn
+    } = this.props;
 
-    return (
+    return loggedIn ? (
       <div>
         <PlaidLink
           clientName="testApp"
@@ -30,20 +43,28 @@ class _App extends Component {
           publicKey={PLAID_PUBLIC_KEY}
           onSuccess={fetchAccessToken}
         >
-          Sign on modal
+          Add new accounts
         </PlaidLink>
         {accessTokens.size !== 0 ? (
-          <>
-            <button onClick={() => fetchTransactions({ accessTokens })}>
-              FETCH TRANSACTIONS
-            </button>
-            <GraphContainer />
-            <GridContainer />
-          </>
+          !isLoading ? (
+            <>
+              <button onClick={() => fetchTransactions({ accessTokens })}>
+                FETCH TRANSACTIONS
+              </button>
+
+              <LoadingContainer />
+              <GraphContainer />
+              <GridContainer />
+            </>
+          ) : (
+            <LoadingContainer />
+          )
         ) : (
-          <div>Please add accounts.</div>
+          <div>Please add new accounts to see transactions.</div>
         )}
       </div>
+    ) : (
+      <LogInContainer />
     );
   }
 }
@@ -52,13 +73,17 @@ _App.propTypes = {
   accounts: list,
   fetchTransactions: PropTypes.func,
   accessTokens: list,
-  graphFidelity: PropTypes.number
+  graphFidelity: PropTypes.number,
+  isLoading: PropTypes.bool.isRequired,
+  loggedIn: PropTypes.bool.isRequired
 };
 
 export default connect(
   state => ({
     accounts: accountsSelector(state),
-    accessTokens: accessTokensSelector(state)
+    accessTokens: accessTokensSelector(state),
+    isLoading: isLoadingSelector(state),
+    loggedIn: loggedInSelector(state)
   }),
   dispatch => ({
     fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken)),
