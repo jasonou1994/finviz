@@ -52,7 +52,7 @@ function* fetchTransactions({ payload: { accessTokens } }) {
       .subtract(5, "year")
       .format("YYYY-MM-DD");
     const end = moment().format("YYYY-MM-DD");
-    const res = yield call(fetch, "http://localhost:8000/transactionsSSE", {
+    const res = yield call(fetch, "http://localhost:8000/transactions/sse", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
