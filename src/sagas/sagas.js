@@ -8,30 +8,42 @@ import {
   stopLoadingTransactions,
   setLoggedIn,
   setUserInfo,
-} from '../actions/index'
+} from '../actions'
 import {
   FETCH_TRANSACTIONS,
   FETCH_ADD_ACCOUNT,
   ACCOUNTS,
   TRANSACTIONS,
   FETCH_LOG_IN,
+  LOG_IN,
+  REFRESH_TRANSACTIONS,
+  ACCOUNTS_ADD,
 } from '../constants'
 import { parseSSEFields } from '../utils'
+import { services } from '../services'
 
 function* addAccount({ payload: publicToken }) {
   try {
-    const res = yield call(fetch, 'http://localhost:8000/accounts/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // const res = yield call(fetch, 'http://localhost:8000/accounts/add', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     publicToken,
+    //     alias: 'noalias',
+    //     lastUpdated: 'never',
+    //   }),
+    //   credentials: 'include',
+    // })
+    const res = yield call(services[ACCOUNTS_ADD], {
       body: JSON.stringify({
         publicToken,
         alias: 'noalias',
         lastUpdated: 'never',
       }),
-      credentials: 'include',
     })
+
     const { error } = yield res.json()
 
     if (error) {
@@ -51,16 +63,23 @@ function* fetchTransactions({ payload: { accessTokens } }) {
       .subtract(2, 'year')
       .format('YYYY-MM-DD')
     const end = moment().format('YYYY-MM-DD')
-    const res = yield call(fetch, 'http://localhost:8000/transactions/sse', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // const res = yield call(fetch, 'http://localhost:8000/transactions/sse', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     start,
+    //     end,
+    //   }),
+    //   credentials: 'include',
+    // })
+
+    const res = yield call(services[REFRESH_TRANSACTIONS], {
       body: JSON.stringify({
         start,
         end,
       }),
-      credentials: 'include',
     })
 
     const reader = yield res.body.getReader()
@@ -111,16 +130,23 @@ function* fetchTransactions({ payload: { accessTokens } }) {
 
 function* fetchLogIn({ payload: { user, password } }) {
   try {
-    const res = yield call(fetch, 'http://localhost:8000/user/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // const res = yield call(fetch, 'http://localhost:8000/user/login', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     username: user,
+    //     password,
+    //   }),
+    //   credentials: 'include',
+    // })
+
+    const res = yield call(services[LOG_IN], {
       body: JSON.stringify({
         username: user,
         password,
       }),
-      credentials: 'include',
     })
 
     const { username, id, error } = yield res.json()
