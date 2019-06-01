@@ -25,6 +25,7 @@ export const addAuthToken = async (
       .where({ username })
 
     res.cookie('Authorization', token)
+    console.log('Adding token...', token)
 
     next()
   } catch (error) {
@@ -80,7 +81,7 @@ export const checkUpdateAuthToken = async (
     next()
   } catch (error) {
     console.log('Cannot validate token.')
-    res.status(500).json({
+    res.status(401).json({
       error,
     })
   }

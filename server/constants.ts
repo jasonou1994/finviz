@@ -27,6 +27,8 @@ export const SALT_ROUNDS = 10
 export const USERS = 'users'
 export const ACCOUNTS = 'accounts'
 export const TRANSACTIONS = 'transactions'
+export const TRANSACTIONS_LOCATIONS = 'transactions_locations'
+export const TRANSACTIONS_PAYMENT_META = 'transactions_payment_meta'
 
 //jwt
 export const key = 'jasonou1'

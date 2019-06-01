@@ -1,34 +1,26 @@
 import {
-  SET_ACCESS_TOKEN,
-  FETCH_ACCESS_TOKEN,
+  FETCH_ADD_ACCOUNT,
   FETCH_LOG_IN,
   SET_LOGGED_IN,
-  USER_ID,
-  USER_NAME,
-  SET_USER_INFO
-} from "../constants/index";
+  SET_USER_INFO,
+} from '../constants/index'
 
-export const fetchAccessToken = token => ({
-  type: FETCH_ACCESS_TOKEN,
-  payload: token
-});
-
-export const setAccessToken = data => ({
-  type: SET_ACCESS_TOKEN,
-  payload: data
-});
+export const addAccount = token => ({
+  type: FETCH_ADD_ACCOUNT,
+  payload: token,
+})
 
 export const fetchLogIn = ({ user, password }) => ({
   type: FETCH_LOG_IN,
-  payload: { user, password }
-});
+  payload: { user, password },
+})
 
 export const setLoggedIn = ({ status }) => ({
   type: SET_LOGGED_IN,
-  payload: { status }
-});
+  payload: { status },
+})
 
 export const setUserInfo = ({ userName, userId }) => ({
   type: SET_USER_INFO,
-  payload: { userName, userId }
-});
+  payload: { userName, userId },
+})
