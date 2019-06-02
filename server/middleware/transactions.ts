@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { dbClient } from '../database'
-import { ITEMS, client, TRANSACTIONS } from '../constants'
-import { transactionDBConverter } from '../utils'
+import { ITEMS, client, TRANSACTIONS, CARDS } from '../constants'
+import { transactionDBConverter, cardDBConverter } from '../utils'
 import { Account, ContractRetrieveTransactions } from '../interfaces'
-import { Transaction as PlaidTransaction } from 'plaid'
+import { Transaction as PlaidTransaction, Account as PlaidCard } from 'plaid'
 
 export const refreshTransactionsSSE = async (req: Request, res: Response) => {
   console.log('In /transactions/sse POST endpoint.')
@@ -57,22 +57,30 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
           )
 
           if (transactions.length !== 0) {
-            res.write('event: transactions\n')
-            res.write(`data: ${JSON.stringify(transactions)}\n\n`)
-
             const dbTxs = transactions.map(tx =>
               transactionDBConverter(tx, userId)
             )
-
             await dbClient(TRANSACTIONS).insert(dbTxs)
+
+            res.write('event: transactions\n')
+            res.write(`data: ${JSON.stringify(transactions)}\n\n`)
 
             txOffset += txCount
           } else {
             completed = true
           }
 
-          res.write('event: accounts\n')
-          res.write(`data: ${JSON.stringify(accounts)}\n\n`)
+          if (accounts.length !== 0) {
+            // TODO: improve this inefficient querying behavior
+            await dbClient(CARDS)
+              .where({ userId })
+              .del()
+            const dbCards = accounts.map(card => cardDBConverter(card, userId))
+            await dbClient(CARDS).insert(dbCards)
+
+            res.write('event: accounts\n')
+            res.write(`data: ${JSON.stringify(accounts)}\n\n`)
+          }
 
           console.log(
             `${transactions.length} transactions processed for token: ${token}`
@@ -103,10 +111,14 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
 export const retrieveTransactions = async (_: Request, res: Response) => {
   const { userId } = res.locals
 
-  const accounts: Array<Account> = await dbClient
-    .select('id', 'lastUpdated', 'alias')
-    .from(ITEMS)
-    .where({ userId })
+  const accounts: Array<PlaidCard> = await new Promise((resolve, reject) => {
+    dbClient
+      .select('*')
+      .from(CARDS)
+      .where({ userId })
+      .then(cards => resolve(cards.map(card => cardDBConverter(card))))
+      .catch(err => reject(err))
+  })
 
   const transactions: Array<PlaidTransaction> = await new Promise(
     (resolve, reject) => {

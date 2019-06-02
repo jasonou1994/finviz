@@ -1,5 +1,5 @@
-import { DBTransaction, isPlaidTx } from './interfaces'
-import { Transaction as PlaidTransaction } from 'plaid'
+import { DBTransaction, isPlaidTx, DBCard, isPlaidCard } from './interfaces'
+import { Transaction as PlaidTransaction, Account as PlaidCard } from 'plaid'
 
 export const transactionDBConverter: (
   tx: DBTransaction | PlaidTransaction,
@@ -74,6 +74,55 @@ export const transactionDBConverter: (
         ppd_id,
         reason,
         reference_number,
+      },
+    }
+  }
+}
+
+export const cardDBConverter: (
+  card: DBCard | PlaidCard,
+  userId?: number
+) => DBCard | PlaidCard = (card, userId) => {
+  if (isPlaidCard(card)) {
+    const {
+      balances: {
+        available,
+        current,
+        limit,
+        iso_currency_code,
+        official_currency_code,
+      },
+      ...sharedFields
+    } = card
+
+    return {
+      ...sharedFields,
+      userId,
+      available,
+      current,
+      limit,
+      iso_currency_code,
+      official_currency_code,
+    }
+  } else {
+    const {
+      userId: _,
+      available,
+      current,
+      limit,
+      iso_currency_code,
+      official_currency_code,
+      ...sharedFields
+    } = card
+
+    return {
+      ...sharedFields,
+      balances: {
+        available,
+        current,
+        limit,
+        iso_currency_code,
+        official_currency_code,
       },
     }
   }

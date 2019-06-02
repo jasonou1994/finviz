@@ -24,7 +24,7 @@ export interface ContractLogin {
 
 //transactions
 export interface ContractRetrieveTransactions {
-  accounts: Array<Account>
+  accounts: Array<PlaidCard>
   transactions: Array<PlaidTransaction>
 }
 
