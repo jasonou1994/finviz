@@ -1,76 +1,80 @@
-import { Transaction } from './interfaces'
+import { DBTransaction, isPlaidTx } from './interfaces'
 import { Transaction as PlaidTransaction } from 'plaid'
 
-export const parseTransactionDatabaseItems: (
-  transactions: Array<PlaidTransaction>,
-  userId: number
-) => Array<Transaction> = (transactions, userId) => {
-  return transactions.reduce((acc, currTx) => {
+export const transactionDBConverter: (
+  tx: DBTransaction | PlaidTransaction,
+  userId?: number
+) => DBTransaction | PlaidTransaction = (tx, userId) => {
+  if (isPlaidTx(tx)) {
+    // Omit location and payment_meta
     const {
-      transaction_id,
-      account_id,
-      category,
-      category_id,
-      transaction_type,
-      name,
-      amount,
-      iso_currency_code,
-      date,
-      pending,
-      pending_transaction_id,
-      account_owner,
-      location: { address, city, state, zip, lat, lon },
-      payment_meta: { reference_number, ppd_id, payee },
-    } = currTx
+      location: { address, city, state, zip, lat, lon, store_number },
+      payment_meta: {
+        by_order_of,
+        payee,
+        payer,
+        payment_method,
+        payment_processor,
+        ppd_id,
+        reason,
+        reference_number,
+      },
+      ...sharedFields
+    } = tx
 
-    const tx = {
-      transaction_id,
+    return {
+      ...sharedFields,
       userId,
-      account_id,
-      category,
-      category_id,
-      transaction_type,
-      name,
-      amount,
-      iso_currency_code,
-      date,
-      pending,
-      pending_transaction_id,
-      account_owner,
       address,
       city,
       state,
       zip,
       lat,
       lon,
-      reference_number,
-      ppd_id,
+      store_number,
+      by_order_of,
       payee,
+      payer,
+      payment_method,
+      payment_processor,
+      ppd_id,
+      reason,
+      reference_number,
     }
+  } else {
+    const {
+      userId: _,
+      address,
+      city,
+      state,
+      zip,
+      lat,
+      lon,
+      store_number,
+      by_order_of,
+      payee,
+      payer,
+      payment_method,
+      payment_processor,
+      ppd_id,
+      reason,
+      reference_number,
+      ...sharedFields
+    } = tx
 
-    acc.push(tx)
-
-    return acc
-  }, [])
-}
-
-export const mapDBTxToPlaidTx: (tx: Transaction) => any = tx => {
-  const {
-    address,
-    city,
-    state,
-    zip,
-    lat,
-    lon,
-    reference_number,
-    ppd_id,
-    payee,
-    ...baseFields
-  } = tx
-
-  return {
-    ...baseFields,
-    location: { address, city, state, zip, lat, lon },
-    payment_meta: { reference_number, ppd_id, payee },
+    return {
+      ...sharedFields,
+      location: { address, city, state, zip, lat, lon, store_number },
+      payment_meta: {
+        by_order_of,
+        payee,
+        payer,
+        payment_method,
+        payment_processor,
+        ppd_id,
+        reason,
+        reference_number,
+      },
+    }
   }
 }

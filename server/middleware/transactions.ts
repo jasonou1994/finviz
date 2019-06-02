@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { dbClient } from '../database'
-import { ACCOUNTS, client, TRANSACTIONS } from '../constants'
-import { parseTransactionDatabaseItems, mapDBTxToPlaidTx } from '../utils'
+import { ITEMS, client, TRANSACTIONS } from '../constants'
+import { transactionDBConverter } from '../utils'
 import { Account, ContractRetrieveTransactions } from '../interfaces'
 import { Transaction as PlaidTransaction } from 'plaid'
 
@@ -21,7 +21,7 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
   const accessTokens: [] = await new Promise((resolve, reject) => {
     dbClient
       .select('accessToken')
-      .from(ACCOUNTS)
+      .from(ITEMS)
       .where({ userId })
       .then(rows => resolve(rows.map(row => row.accessToken)))
       .catch(err => reject(err))
@@ -60,7 +60,9 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
             res.write('event: transactions\n')
             res.write(`data: ${JSON.stringify(transactions)}\n\n`)
 
-            const dbTxs = parseTransactionDatabaseItems(transactions, userId)
+            const dbTxs = transactions.map(tx =>
+              transactionDBConverter(tx, userId)
+            )
 
             await dbClient(TRANSACTIONS).insert(dbTxs)
 
@@ -103,7 +105,7 @@ export const retrieveTransactions = async (_: Request, res: Response) => {
 
   const accounts: Array<Account> = await dbClient
     .select('id', 'lastUpdated', 'alias')
-    .from(ACCOUNTS)
+    .from(ITEMS)
     .where({ userId })
 
   const transactions: Array<PlaidTransaction> = await new Promise(
@@ -112,7 +114,7 @@ export const retrieveTransactions = async (_: Request, res: Response) => {
         .select('*')
         .from(TRANSACTIONS)
         .where({ userId })
-        .then(txs => resolve(txs.map(mapDBTxToPlaidTx)))
+        .then(txs => resolve(txs.map(tx => transactionDBConverter(tx))))
         .catch(err => reject(err))
     }
   )

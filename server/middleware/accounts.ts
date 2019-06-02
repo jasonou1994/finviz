@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { dbClient } from '../database'
-import { ACCOUNTS, client } from '../constants'
+import { ITEMS, client } from '../constants'
 import { ContractAccountsAdd } from '../interfaces'
 
 export const addAccount = async (req: Request, res: Response) => {
@@ -20,9 +20,9 @@ export const addAccount = async (req: Request, res: Response) => {
       })
     })
 
-    await dbClient(ACCOUNTS).insert({ userId, accessToken, alias })
+    await dbClient(ITEMS).insert({ userId, accessToken, alias })
 
-    const accounts = await dbClient(ACCOUNTS)
+    const accounts = await dbClient(ITEMS)
       .select(['alias', 'id', 'lastUpdated'])
       .where({ userId })
 

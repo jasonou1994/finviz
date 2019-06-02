@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
-import { SALT_ROUNDS, USERS, ACCOUNTS, TRANSACTIONS } from '../constants'
+import { SALT_ROUNDS, USERS } from '../constants'
 import { dbClient } from '../database'
-import { ContractLogin, Transaction } from '../interfaces'
+import { ContractLogin } from '../interfaces'
 
 export const createUser = async (
   req: Request,

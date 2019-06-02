@@ -1,4 +1,9 @@
-import { ACCOUNTS_ADD, REFRESH_TRANSACTIONS, LOG_IN } from './constants'
+import {
+  ACCOUNTS_ADD,
+  REFRESH_TRANSACTIONS,
+  LOG_IN,
+  RETRIEVE_TRANSACTIONS,
+} from './constants'
 
 const serviceDefs = [
   {
@@ -12,6 +17,10 @@ const serviceDefs = [
   {
     name: LOG_IN,
     url: 'http://localhost:8000/user/login',
+  },
+  {
+    name: RETRIEVE_TRANSACTIONS,
+    url: 'http://localhost:8000/transactions/retrieve',
   },
 ]
 
@@ -28,7 +37,7 @@ export const services = serviceDefs.reduce((acc, service) => {
 
   const newOptions = { ...defaultOptions, ...options }
 
-  acc[name] = async ({ body }) => {
+  acc[name] = ({ body }) => {
     return new Promise((resolve, reject) => {
       fetch(url, { ...newOptions, body })
         .then(response => resolve(response))

@@ -25,7 +25,7 @@ export const SALT_ROUNDS = 10
 
 //DB
 export const USERS = 'users'
-export const ACCOUNTS = 'accounts'
+export const ITEMS = 'items'
 export const TRANSACTIONS = 'transactions'
 export const TRANSACTIONS_LOCATIONS = 'transactions_locations'
 export const TRANSACTIONS_PAYMENT_META = 'transactions_payment_meta'

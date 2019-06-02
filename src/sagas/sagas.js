@@ -17,6 +17,7 @@ import {
   FETCH_LOG_IN,
   LOG_IN,
   ACCOUNTS_ADD,
+  RETRIEVE_TRANSACTIONS,
 } from '../constants'
 import { parseSSEFields } from '../utils'
 import { services } from '../services'
@@ -106,14 +107,15 @@ function* refreshTransactions() {
 
 function* fetchLogIn({ payload: { user, password } }) {
   try {
-    const res = yield call(services[LOG_IN], {
+    // 1. Attempt log in
+    const login = yield call(services[LOG_IN], {
       body: JSON.stringify({
         username: user,
         password,
       }),
     })
 
-    const { username, id, error } = yield res.json()
+    const { username, id, error } = yield login.json()
     if (error) {
       throw error
     }
@@ -125,6 +127,16 @@ function* fetchLogIn({ payload: { user, password } }) {
         userId: id,
       })
     )
+
+    // 2. Immediately request accounts + tx stored in DB
+    const data = yield call(services[RETRIEVE_TRANSACTIONS], {
+      body: JSON.stringify({}),
+    })
+    const { accounts, transactions } = yield data.json()
+
+    console.log(accounts, transactions)
+    yield put(setAccounts(accounts))
+    yield put(setTransactions(transactions))
   } catch (error) {
     console.error('Problem in fetchLogIn:', error)
   }
