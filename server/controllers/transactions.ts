@@ -3,13 +3,21 @@ import {
   refreshTransactionsSSE,
   checkUpdateAuthToken,
   getUserId,
+  retrieveTransactions,
 } from '../middleware'
 
 export const transactions = Router()
 
 transactions.post(
-  '/sse',
+  '/refresh',
   checkUpdateAuthToken,
   getUserId,
   refreshTransactionsSSE
+)
+
+transactions.post(
+  '/retrieve',
+  checkUpdateAuthToken,
+  getUserId,
+  retrieveTransactions
 )

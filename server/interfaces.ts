@@ -1,28 +1,34 @@
-type accounts = Array<{
+import { Transaction as PlaidTransaction } from 'plaid'
+
+//accounts
+export interface Account {
   id: number
   lastUpdated: string
   alias: string
-}>
+}
 
-//accounts
 export interface ContractAccountsAdd {
   status: string
-  accounts: accounts
+  accounts: Array<Account>
 }
 
 //users
-export interface Login {
+export interface ContractLogin {
   userName: string
   userId: number
-  accounts: accounts
 }
 
 //transactions
+export interface ContractRetrieveTransactions {
+  accounts: Array<Account>
+  transactions: Array<PlaidTransaction>
+}
+
 export interface Transaction {
   transaction_id: string
   userId: number
   account_id: string
-  category: string
+  category: string[]
   category_id: string
   transaction_type: string
   name: string
@@ -33,22 +39,13 @@ export interface Transaction {
   pending: boolean
   pending_transaction_id: string
   account_owner: string
-}
-
-export interface TransactionLocation {
   address: string
   city: string
-  region: string
-  postal_code: string
-  country: string
+  state: string
+  zip: string
   lat: number
   lon: number
-  transaction_id: string
-}
-
-export interface TransactionPaymentMeta {
-  transaction_id: string
   reference_number: string
   ppd_id: string
-  payee_name: string
+  payee: string
 }

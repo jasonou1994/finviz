@@ -7,7 +7,7 @@ const serviceDefs = [
   },
   {
     name: REFRESH_TRANSACTIONS,
-    url: 'http://localhost:8000/transactions/sse',
+    url: 'http://localhost:8000/transactions/refresh',
   },
   {
     name: LOG_IN,

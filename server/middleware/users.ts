@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
-import { SALT_ROUNDS, USERS, ACCOUNTS } from '../constants'
+import { SALT_ROUNDS, USERS, ACCOUNTS, TRANSACTIONS } from '../constants'
 import { dbClient } from '../database'
-import { Login } from '../interfaces'
+import { ContractLogin, Transaction } from '../interfaces'
 
 export const createUser = async (
   req: Request,
@@ -52,6 +52,7 @@ export const processLogIn = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log('In processLogIn')
   const { username, password } = req.body
 
   try {
@@ -69,14 +70,8 @@ export const processLogIn = async (
       throw 'Username or password does not match that of an existing user'
     }
 
-    const accounts = await dbClient
-      .select('id', 'lastUpdated', 'alias')
-      .from(ACCOUNTS)
-      .where({ userId: id })
-
     res.locals.userName = username
     res.locals.userId = id
-    res.locals.accounts = accounts
 
     next()
   } catch (error) {
@@ -88,12 +83,12 @@ export const processLogIn = async (
 }
 
 export const sendLogInResponse = (_, res: Response) => {
-  const { userName, userId, accounts } = res.locals
+  console.log('In sendLogInResponse')
+  const { userName, userId } = res.locals
 
-  const body: Login = {
+  const body: ContractLogin = {
     userName,
     userId,
-    accounts,
   }
   res.json(body)
 }

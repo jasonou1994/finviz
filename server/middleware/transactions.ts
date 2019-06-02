@@ -1,13 +1,9 @@
 import { Request, Response } from 'express'
 import { dbClient } from '../database'
-import {
-  ACCOUNTS,
-  client,
-  TRANSACTIONS,
-  TRANSACTIONS_LOCATIONS,
-  TRANSACTIONS_PAYMENT_META,
-} from '../constants'
-import { parseTransactionDatabaseItems } from '../utils'
+import { ACCOUNTS, client, TRANSACTIONS } from '../constants'
+import { parseTransactionDatabaseItems, mapDBTxToPlaidTx } from '../utils'
+import { Account, ContractRetrieveTransactions } from '../interfaces'
+import { Transaction as PlaidTransaction } from 'plaid'
 
 export const refreshTransactionsSSE = async (req: Request, res: Response) => {
   console.log('In /transactions/sse POST endpoint.')
@@ -64,15 +60,9 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
             res.write('event: transactions\n')
             res.write(`data: ${JSON.stringify(transactions)}\n\n`)
 
-            const {
-              dbTxs,
-              dbTxLocations,
-              dbTxPaymentMetas,
-            } = parseTransactionDatabaseItems(transactions, userId)
+            const dbTxs = parseTransactionDatabaseItems(transactions, userId)
 
             await dbClient(TRANSACTIONS).insert(dbTxs)
-            await dbClient(TRANSACTIONS_LOCATIONS).insert(dbTxLocations)
-            await dbClient(TRANSACTIONS_PAYMENT_META).insert(dbTxPaymentMetas)
 
             txOffset += txCount
           } else {
@@ -86,7 +76,7 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
             `${transactions.length} transactions processed for token: ${token}`
           )
         } catch (err) {
-          console.log('ERROR', err.error_code, err.error_message)
+          console.log('ERROR', err)
           errorCount++
         }
       }
@@ -106,4 +96,31 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
       res.write('event: error\n\n')
       res.end()
     })
+}
+
+export const retrieveTransactions = async (_: Request, res: Response) => {
+  const { userId } = res.locals
+
+  const accounts: Array<Account> = await dbClient
+    .select('id', 'lastUpdated', 'alias')
+    .from(ACCOUNTS)
+    .where({ userId })
+
+  const transactions: Array<PlaidTransaction> = await new Promise(
+    (resolve, reject) => {
+      dbClient
+        .select('*')
+        .from(TRANSACTIONS)
+        .where({ userId })
+        .then(txs => resolve(txs.map(mapDBTxToPlaidTx)))
+        .catch(err => reject(err))
+    }
+  )
+
+  const resBody: ContractRetrieveTransactions = {
+    accounts,
+    transactions,
+  }
+
+  res.json(resBody)
 }

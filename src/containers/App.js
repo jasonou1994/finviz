@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { fetchTransactions, addAccount } from '../actions/index'
+import { addAccount, refreshTransactions } from '../actions'
 import PropTypes from 'prop-types'
 import PlaidLink from 'react-plaid-link'
 import { list } from 'react-immutable-proptypes'
 import {
   accountsSelector,
-  accessTokensSelector,
   isLoadingSelector,
   loggedInSelector,
 } from '../reducers'
@@ -26,13 +25,7 @@ class _App extends Component {
 
   render() {
     const { PLAID_PUBLIC_KEY } = this.state
-    const {
-      fetchTransactions,
-      addAccount,
-      accessTokens,
-      isLoading,
-      loggedIn,
-    } = this.props
+    const { refreshTransactions, addAccount, isLoading, loggedIn } = this.props
 
     return loggedIn ? (
       <div>
@@ -47,8 +40,8 @@ class _App extends Component {
         </PlaidLink>
         {!isLoading ? (
           <>
-            <button onClick={() => fetchTransactions({ accessTokens })}>
-              FETCH TRANSACTIONS
+            <button onClick={() => refreshTransactions()}>
+              Refresh Transactions
             </button>
 
             <LoadingContainer />
@@ -68,7 +61,6 @@ class _App extends Component {
 _App.propTypes = {
   accounts: list,
   fetchTransactions: PropTypes.func,
-  accessTokens: list,
   graphFidelity: PropTypes.number,
   isLoading: PropTypes.bool.isRequired,
   loggedIn: PropTypes.bool.isRequired,
@@ -77,12 +69,11 @@ _App.propTypes = {
 export default connect(
   state => ({
     accounts: accountsSelector(state),
-    accessTokens: accessTokensSelector(state),
     isLoading: isLoadingSelector(state),
     loggedIn: loggedInSelector(state),
   }),
   dispatch => ({
-    fetchTransactions: accessToken => dispatch(fetchTransactions(accessToken)),
+    refreshTransactions: () => dispatch(refreshTransactions()),
     addAccount: token => dispatch(addAccount(token)),
   })
 )(_App)
