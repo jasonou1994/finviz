@@ -3,6 +3,7 @@ import {
   REFRESH_TRANSACTIONS,
   LOG_IN,
   RETRIEVE_TRANSACTIONS,
+  LOG_OUT,
 } from './constants'
 
 const serviceDefs = [
@@ -21,6 +22,10 @@ const serviceDefs = [
   {
     name: RETRIEVE_TRANSACTIONS,
     url: 'http://localhost:8000/transactions/retrieve',
+  },
+  {
+    name: LOG_OUT,
+    url: 'http://localhost:8000/user/logout',
   },
 ]
 

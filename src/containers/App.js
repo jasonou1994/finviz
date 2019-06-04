@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { addAccount, refreshTransactions } from '../actions'
+import { addAccount, refreshTransactions, fetchLogOut } from '../actions'
 import PropTypes from 'prop-types'
 import PlaidLink from 'react-plaid-link'
 import { list } from 'react-immutable-proptypes'
@@ -25,7 +25,13 @@ class _App extends Component {
 
   render() {
     const { PLAID_PUBLIC_KEY } = this.state
-    const { refreshTransactions, addAccount, isLoading, loggedIn } = this.props
+    const {
+      refreshTransactions,
+      addAccount,
+      isLoading,
+      loggedIn,
+      fetchLogOut,
+    } = this.props
 
     return loggedIn ? (
       <div>
@@ -43,6 +49,7 @@ class _App extends Component {
             <button onClick={() => refreshTransactions()}>
               Refresh Transactions
             </button>
+            <button onClick={() => fetchLogOut()}>Log Out</button>
 
             <LoadingContainer />
             <GraphContainer />
@@ -61,6 +68,8 @@ class _App extends Component {
 _App.propTypes = {
   accounts: list,
   fetchTransactions: PropTypes.func,
+  addAccount: PropTypes.func,
+  fetchLogOut: PropTypes.func,
   graphFidelity: PropTypes.number,
   isLoading: PropTypes.bool.isRequired,
   loggedIn: PropTypes.bool.isRequired,
@@ -75,5 +84,6 @@ export default connect(
   dispatch => ({
     refreshTransactions: () => dispatch(refreshTransactions()),
     addAccount: token => dispatch(addAccount(token)),
+    fetchLogOut: () => dispatch(fetchLogOut()),
   })
 )(_App)

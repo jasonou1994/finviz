@@ -18,16 +18,18 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
     .where({ userId })
     .del()
 
-  const accessTokens: [] = await new Promise((resolve, reject) => {
+  const items: [] = await new Promise((resolve, reject) => {
     dbClient
-      .select('accessToken')
+      .select(['id', 'accessToken'])
       .from(ITEMS)
       .where({ userId })
-      .then(rows => resolve(rows.map(row => row.accessToken)))
+      .then(rows => resolve(rows))
       .catch(err => reject(err))
   })
 
-  const tokenProms = accessTokens.map(token => {
+  const tokenProms = items.map(item => {
+    const { accessToken: token, id: itemId } = item
+
     return new Promise(async (tokenResolve, tokenReject) => {
       let errorCount = 0
 
@@ -71,11 +73,12 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
           }
 
           if (accounts.length !== 0) {
-            // TODO: improve this inefficient querying behavior
             await dbClient(CARDS)
-              .where({ userId })
+              .where({ userId, itemId })
               .del()
-            const dbCards = accounts.map(card => cardDBConverter(card, userId))
+            const dbCards = accounts.map(card =>
+              cardDBConverter(card, userId, itemId)
+            )
             await dbClient(CARDS).insert(dbCards)
 
             res.write('event: accounts\n')

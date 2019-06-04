@@ -1,8 +1,10 @@
 //ACTIONS
 export const FETCH_ADD_ACCOUNT = 'FETCH_ADD_ACCOUNT'
+export const FETCH_CREATE_USER = 'FETCH_CREATE_USER'
 export const FETCH_LOG_IN = 'FETCH_LOG_IN'
 export const SET_LOGGED_IN = 'SET_LOGGED_IN'
 export const SET_USER_INFO = 'SET_USER_INFO'
+export const FETCH_LOG_OUT = 'FETCH_LOG_OUT'
 
 //STORE
 export const ACCESS_TOKENS = 'ACCESS_TOKENS'

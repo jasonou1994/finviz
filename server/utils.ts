@@ -81,8 +81,9 @@ export const transactionDBConverter: (
 
 export const cardDBConverter: (
   card: DBCard | PlaidCard,
-  userId?: number
-) => DBCard | PlaidCard = (card, userId) => {
+  userId?: number,
+  itemId?: number
+) => DBCard | PlaidCard = (card, userId, itemId) => {
   if (isPlaidCard(card)) {
     const {
       balances: {
@@ -98,6 +99,7 @@ export const cardDBConverter: (
     return {
       ...sharedFields,
       userId,
+      itemId,
       available,
       current,
       limit,
@@ -106,7 +108,8 @@ export const cardDBConverter: (
     }
   } else {
     const {
-      userId: _,
+      userId,
+      itemId,
       available,
       current,
       limit,

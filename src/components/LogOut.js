@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
 import { func } from 'prop-types'
 
-export class LogIn extends Component {
+export class LogOut extends Component {
   constructor(props) {
     super(props)
     this.state = { userInput: '', passwordInput: '' }
   }
 
-  submitLogIn = () => {
+  submitCreateAccount = () => {
     const { userInput, passwordInput } = this.state
-    const { fetchLogIn } = this.props
+    const { fetchCreateUser } = this.props
 
-    fetchLogIn({
+    fetchCreateUser({
       user: userInput,
       password: passwordInput,
     })
@@ -22,7 +22,7 @@ export class LogIn extends Component {
 
     return (
       <div>
-        <div>Log In</div>
+        <div>Create new account</div>
         <input
           type="text"
           value={userInput}
@@ -39,11 +39,11 @@ export class LogIn extends Component {
             this.setState({ passwordInput: e.target.value })
           }}
         />
-        <button onClick={this.submitLogIn}>Log In</button>
+        <button onClick={this.submitCreateAccount}>Create</button>
       </div>
     )
   }
 }
-LogIn.propTypes = {
-  fetchLogIn: func.isRequired,
+LogOut.propTypes = {
+  fetchCreateUser: func.isRequired,
 }

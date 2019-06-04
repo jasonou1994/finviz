@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import { SALT_ROUNDS, USERS } from '../constants'
 import { dbClient } from '../database'
-import { ContractLogin } from '../interfaces'
+import { ContractLogin, ContractCreateUser } from '../interfaces'
 
 export const createUser = async (
   req: Request,
@@ -36,15 +36,26 @@ export const createUser = async (
       username,
     })
 
-    res.status(200).json({
-      status: 'Successfully created new user.',
-    })
+    next()
+
+    res.locals.username = username
   } catch (error) {
     console.log(error)
     res.status(500).json({
       error,
     })
   }
+}
+
+export const sendCreateUserResponse = async (_: Request, res: Response) => {
+  const { username, userId } = res.locals
+
+  const resBody: ContractCreateUser = {
+    username,
+    userId,
+  }
+
+  res.status(200).json(resBody)
 }
 
 export const processLogIn = async (
@@ -70,7 +81,7 @@ export const processLogIn = async (
       throw 'Username or password does not match that of an existing user'
     }
 
-    res.locals.userName = username
+    res.locals.username = username
     res.locals.userId = id
 
     next()
@@ -82,12 +93,11 @@ export const processLogIn = async (
   }
 }
 
-export const sendLogInResponse = (_, res: Response) => {
-  console.log('In sendLogInResponse')
-  const { userName, userId } = res.locals
+export const sendLogInResponse = (_: Request, res: Response) => {
+  const { username, userId } = res.locals
 
   const body: ContractLogin = {
-    userName,
+    username,
     userId,
   }
   res.json(body)

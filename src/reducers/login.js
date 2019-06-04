@@ -1,4 +1,4 @@
-import { Map, List } from 'immutable'
+import { Map } from 'immutable'
 import {
   ACCESS_TOKENS,
   USER_ID,

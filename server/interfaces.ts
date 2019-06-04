@@ -18,9 +18,11 @@ export interface ContractAccountsAdd {
 
 //users
 export interface ContractLogin {
-  userName: string
+  username: string
   userId: number
 }
+
+export interface ContractCreateUser extends ContractLogin {}
 
 //transactions
 export interface ContractRetrieveTransactions {
@@ -70,6 +72,7 @@ export function isPlaidTx(
 export interface DBCard {
   account_id: string
   userId: number
+  itemId: number
   mask: string | null
   name: string | null
   official_name: string | null

@@ -7,5 +7,5 @@ export * from './transactions'
 export * from './users'
 
 export const sendEmptyResponse = (_, res: Response) => {
-  res.end()
+  res.json({})
 }
