@@ -4,12 +4,17 @@ import {
   LOG_IN,
   RETRIEVE_TRANSACTIONS,
   LOG_OUT,
+  CREATE_USER,
 } from './constants'
 
 const serviceDefs = [
   {
     name: ACCOUNTS_ADD,
     url: 'http://localhost:8000/accounts/add',
+  },
+  {
+    name: CREATE_USER,
+    url: 'http://localhost:8000/user/create',
   },
   {
     name: REFRESH_TRANSACTIONS,

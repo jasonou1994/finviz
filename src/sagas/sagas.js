@@ -20,6 +20,8 @@ import {
   RETRIEVE_TRANSACTIONS,
   LOG_OUT,
   FETCH_LOG_OUT,
+  FETCH_CREATE_USER,
+  CREATE_USER,
 } from '../constants'
 import { parseSSEFields } from '../utils'
 import { services } from '../services'
@@ -165,12 +167,38 @@ function* fetchLogOut() {
   )
 }
 
+function* fetchCreateUser({ payload: { user, password } }) {
+  try {
+    const newUser = yield call(services[CREATE_USER], {
+      body: JSON.stringify({
+        username: user,
+        password,
+      }),
+    })
+
+    const { username, id, error } = yield newUser.json()
+    if (error) {
+      throw error
+    }
+
+    yield put(setLoggedIn({ status: true }))
+    yield put(
+      setUserInfo({
+        userName: username,
+        userId: id,
+      })
+    )
+  } catch (error) {
+    console.error('Problem in fetchLogIn:', error)
+  }
+}
+
 function* saga() {
+  yield takeLatest(FETCH_CREATE_USER, fetchCreateUser)
   yield takeLatest(REFRESH_TRANSACTIONS, refreshTransactions)
   yield takeLatest(FETCH_ADD_ACCOUNT, addAccount)
   yield takeLatest(FETCH_LOG_IN, fetchLogIn)
   yield takeLatest(FETCH_LOG_OUT, fetchLogOut)
 }
 
-function* fetchCreateUser() {}
 export default saga
