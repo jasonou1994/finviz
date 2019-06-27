@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { dbClient } from '../database'
 import { ITEMS, client, TRANSACTIONS, CARDS } from '../constants'
 import { transactionDBConverter, cardDBConverter } from '../utils'
-import { Account, ContractRetrieveTransactions } from '../interfaces'
+import { ContractRetrieveTransactions } from '../interfaces'
 import { Transaction as PlaidTransaction, Account as PlaidCard } from 'plaid'
 
 export const refreshTransactionsSSE = async (req: Request, res: Response) => {

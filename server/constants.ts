@@ -13,6 +13,14 @@ export const client = new Client(
   { version: '2018-05-22' }
 )
 
+// export const connection = {
+//   host: 'pileadb',
+//   user: 'docker',
+//   password: 'docker',
+//   database: 'docker',
+//   port: 32000,
+// }
+
 export const connection = {
   host: 'localhost',
   user: 'jasonou',

@@ -80,7 +80,7 @@ export interface DBCard {
   type: string | null
   available: number | null
   current: number | null
-  limit: number | null
+  creditlimit: number | null
   iso_currency_code: string | null
   official_currency_code: string | null
 }

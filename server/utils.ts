@@ -89,7 +89,7 @@ export const cardDBConverter: (
       balances: {
         available,
         current,
-        limit,
+        limit: creditlimit,
         iso_currency_code,
         official_currency_code,
       },
@@ -102,7 +102,7 @@ export const cardDBConverter: (
       itemId,
       available,
       current,
-      limit,
+      creditlimit,
       iso_currency_code,
       official_currency_code,
     }
@@ -112,7 +112,7 @@ export const cardDBConverter: (
       itemId,
       available,
       current,
-      limit,
+      creditlimit,
       iso_currency_code,
       official_currency_code,
       ...sharedFields
@@ -123,7 +123,7 @@ export const cardDBConverter: (
       balances: {
         available,
         current,
-        limit,
+        limit: creditlimit,
         iso_currency_code,
         official_currency_code,
       },
