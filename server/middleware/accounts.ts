@@ -2,24 +2,14 @@ import { Request, Response } from 'express'
 import { dbClient } from '../database'
 import { ITEMS, client } from '../constants'
 import { ContractAccountsAdd } from '../interfaces'
+import { plaidGetAccessToken } from '../plaidAPI'
 
 export const addAccount = async (req: Request, res: Response) => {
   const { userId } = res.locals
   const { alias, publicToken } = req.body
 
   try {
-    const accessToken = await new Promise((resolve, reject) => {
-      client.exchangePublicToken(publicToken, (err, tokenResponse) => {
-        if (err) {
-          reject(err)
-        }
-
-        const { access_token } = tokenResponse
-
-        resolve(access_token)
-      })
-    })
-
+    const accessToken = await plaidGetAccessToken({ publicToken })
     await dbClient(ITEMS).insert({ userId, accessToken, alias })
 
     const accounts = await dbClient(ITEMS)

@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { equals } from 'ramda'
 
 export const formatMilliseconds = milli => moment(milli).format('MMM Do, YYYY')
 
@@ -38,4 +39,43 @@ export const parseSSEFields = rawString => {
         return acc
       }, {})
   )
+}
+
+// transfer credit negative
+const nonCountedCategories = [
+  { accountType: 'credit', amount: 'negative', category: 'Payment' },
+  { accountType: 'depository', amount: 'positive', category: 'Payment' },
+  { accountType: 'credit', amount: 'negative', category: 'Transfer' },
+  // { accountType: 'depository', amount: 'negative', category: 'Transfer' },
+  { accountType: 'depository', amount: 'positive', category: 'CreditCard' },
+  { accountType: 'depository', amount: 'positive', category: 'Deposit' },
+].reduce((acc, { accountType, amount, category }) => {
+  acc[`${accountType}-${amount}-${category}`] = true
+  return acc
+}, {})
+
+export const shouldKeepTransaction = (
+  { amount, category: categoryString },
+  accountType
+) => {
+  if (!categoryString) {
+    return true
+  }
+
+  const cleanedCategories = categoryString
+    .replace(/[{|}|"]/g, '')
+    .split(',')
+    .map(cat => cat.trim())
+
+  return cleanedCategories.reduce((acc, category) => {
+    const tryMatch = `${accountType}-${
+      amount >= 0 ? 'positive' : 'negative'
+    }-${category}`
+
+    if (nonCountedCategories[tryMatch]) {
+      acc = false
+    }
+
+    return acc
+  }, true)
 }

@@ -75,7 +75,6 @@ export class LoadingTransactions extends Component {
   }
 
   render() {
-    console.log(this.getBarData())
     const { transactionsNoIntraAccount, isLoading } = this.props
 
     return (

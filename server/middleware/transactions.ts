@@ -1,9 +1,14 @@
 import { Request, Response } from 'express'
-import { dbClient } from '../database'
-import { ITEMS, client, TRANSACTIONS, CARDS } from '../constants'
-import { transactionDBConverter, cardDBConverter } from '../utils'
 import { ContractRetrieveTransactions } from '../interfaces'
-import { Transaction as PlaidTransaction, Account as PlaidCard } from 'plaid'
+import { TransactionsResponse } from 'plaid'
+import {
+  deleteTransactions,
+  insertTransactions,
+  getTransactions,
+} from '../database/transactions'
+import { DBItem, getItems } from '../database/items'
+import { plaidGetTransactions } from '../plaidAPI'
+import { deleteCards, insertCards, getCards } from '../database/cards'
 
 export const refreshTransactionsSSE = async (req: Request, res: Response) => {
   console.log('In /transactions/sse POST endpoint.')
@@ -14,55 +19,43 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
   res.header('Cache-Control', 'no-cache')
   res.header('Connection', 'keep-alive')
 
-  await dbClient(TRANSACTIONS)
-    .where({ userId })
-    .del()
+  await deleteTransactions({ userId })
 
-  const items: [] = await new Promise((resolve, reject) => {
-    dbClient
-      .select(['id', 'accessToken'])
-      .from(ITEMS)
-      .where({ userId })
-      .then(rows => resolve(rows))
-      .catch(err => reject(err))
-  })
+  const items: DBItem[] = await getItems({ userId })
 
   const tokenProms = items.map(item => {
     const { accessToken: token, id: itemId } = item
 
     return new Promise(async (tokenResolve, tokenReject) => {
+      const maxError = 3
       let errorCount = 0
 
       let completed = false
       const txCount = 500
       let txOffset = 0
 
-      while (!completed && errorCount < 3) {
+      while (!completed && errorCount < maxError) {
         const options = {
           count: txCount,
           offset: txOffset,
         }
 
         try {
-          const { transactions, accounts } = await new Promise(
-            (txResolve, txReject) => {
-              client.getTransactions(
-                token,
-                start,
-                end,
-                options,
-                (err, result) => {
-                  result ? txResolve(result) : txReject(err)
-                }
-              )
-            }
-          )
+          const {
+            transactions,
+            accounts,
+          }: TransactionsResponse = await plaidGetTransactions({
+            token,
+            start,
+            end,
+            options,
+          })
 
           if (transactions.length !== 0) {
-            const dbTxs = transactions.map(tx =>
-              transactionDBConverter(tx, userId)
-            )
-            await dbClient(TRANSACTIONS).insert(dbTxs)
+            await insertTransactions({
+              plaidTransactions: transactions,
+              userId,
+            })
 
             res.write('event: transactions\n')
             res.write(`data: ${JSON.stringify(transactions)}\n\n`)
@@ -73,13 +66,8 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
           }
 
           if (accounts.length !== 0) {
-            await dbClient(CARDS)
-              .where({ userId, itemId })
-              .del()
-            const dbCards = accounts.map(card =>
-              cardDBConverter(card, userId, itemId)
-            )
-            await dbClient(CARDS).insert(dbCards)
+            await deleteCards({ userId, itemId })
+            await insertCards({ cards: accounts, userId, itemId })
 
             res.write('event: accounts\n')
             res.write(`data: ${JSON.stringify(accounts)}\n\n`)
@@ -94,7 +82,7 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
         }
       }
 
-      errorCount < 20 ? tokenResolve() : tokenReject()
+      errorCount < maxError ? tokenResolve() : tokenReject()
     })
   })
 
@@ -114,25 +102,12 @@ export const refreshTransactionsSSE = async (req: Request, res: Response) => {
 export const retrieveTransactions = async (_: Request, res: Response) => {
   const { userId } = res.locals
 
-  const accounts: Array<PlaidCard> = await new Promise((resolve, reject) => {
-    dbClient
-      .select('*')
-      .from(CARDS)
-      .where({ userId })
-      .then(cards => resolve(cards.map(card => cardDBConverter(card))))
-      .catch(err => reject(err))
-  })
-
-  const transactions: Array<PlaidTransaction> = await new Promise(
-    (resolve, reject) => {
-      dbClient
-        .select('*')
-        .from(TRANSACTIONS)
-        .where({ userId })
-        .then(txs => resolve(txs.map(tx => transactionDBConverter(tx))))
-        .catch(err => reject(err))
-    }
-  )
+  const [accounts, transactions] = await Promise.all([
+    await getCards({ userId }),
+    await getTransactions({
+      userId,
+    }),
+  ])
 
   const resBody: ContractRetrieveTransactions = {
     accounts,

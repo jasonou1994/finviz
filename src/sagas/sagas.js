@@ -140,7 +140,6 @@ function* fetchLogIn({ payload: { user, password } }) {
     })
     const { accounts, transactions } = yield data.json()
 
-    console.log(accounts, transactions)
     yield put(setAccounts(accounts))
     yield put(setTransactions(transactions))
   } catch (error) {
