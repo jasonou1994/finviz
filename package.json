@@ -40,7 +40,7 @@
     "jest-pnp-resolver": "1.0.2",
     "jest-resolve": "23.6.0",
     "jest-watch-typeahead": "^0.2.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "knex": "^0.16.5",
     "lodash": "^4.17.11",
     "mini-css-extract-plugin": "0.5.0",
